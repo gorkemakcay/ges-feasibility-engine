@@ -18,7 +18,7 @@ from gesfeas.production.engine import run_production_model
 from gesfeas.finance.models import TariffConfig, BatteryConfig
 from gesfeas.regulation.models import RegulationConfig, GroundMountEligibility
 from gesfeas.scenario.engine import compare_scenarios
-from gesfeas.report.generator import generate_full_report
+from gesfeas.report.generator import generate_full_report, currency_symbol
 
 # Configurations
 CONFIG_DIR = os.path.join(project_root, "config")
@@ -707,6 +707,7 @@ with tab_calc:
                     st.session_state.scenario_result = scenario_result
                     st.session_state.production = production
                     st.session_state.report_path = report_path
+                    st.session_state.reg_config = reg_config
                     
                     st.success("✅ Analiz tamamlandı! İçgörülerini görmek için yukarıdaki **📊 Sonuç Panosu** sekmesine geç.")
 
@@ -742,6 +743,7 @@ with tab_dash:
 
         st.markdown("<h2 style='margin-top: 2rem; margin-bottom: 1rem;'>⚖️ Finansal Senaryo Karşılaştırması</h2>", unsafe_allow_html=True)
 
+        _sym = currency_symbol(scenario.pv_only.currency)
         st.markdown(f"""
         <div class="table-responsive">
             <table class="custom-table">
@@ -752,18 +754,18 @@ with tab_dash:
                 </tr>
                 <tr>
                     <td><strong>CAPEX (İlk Yatırım)</strong></td>
-                    <td>${scenario.pv_only.capex:,.0f}</td>
-                    <td>${scenario.pv_storage.capex:,.0f}</td>
+                    <td>{_sym}{scenario.pv_only.capex:,.0f}</td>
+                    <td>{_sym}{scenario.pv_storage.capex:,.0f}</td>
                 </tr>
                 <tr>
                     <td><strong>NPV (Net Bugünkü Değer)</strong></td>
-                    <td>${scenario.pv_only.npv:,.0f}</td>
-                    <td>${scenario.pv_storage.npv:,.0f}</td>
+                    <td>{_sym}{scenario.pv_only.npv:,.0f}</td>
+                    <td>{_sym}{scenario.pv_storage.npv:,.0f}</td>
                 </tr>
                 <tr>
-                    <td><strong>LCOE ($/kWh)</strong></td>
-                    <td>${scenario.pv_only.lcoe:.4f}</td>
-                    <td>${scenario.pv_storage.lcoe:.4f}</td>
+                    <td><strong>LCOE ({scenario.pv_only.currency}/kWh)</strong></td>
+                    <td>{_sym}{scenario.pv_only.lcoe:.4f}</td>
+                    <td>{_sym}{scenario.pv_storage.lcoe:.4f}</td>
                 </tr>
                 <tr>
                     <td><strong>Basit Geri Ödeme Süresi</strong></td>
@@ -789,23 +791,31 @@ with tab_dash:
             try:
                 _t = yaml.safe_load(open(TARIFF_FILE, encoding="utf-8"))
                 _b = yaml.safe_load(open(BATTERY_FILE, encoding="utf-8"))
+                _cur = _t.get("currency", "USD")
+                _csym = currency_symbol(_cur)
+                _has_tou = bool(_t.get("tou_periods"))
+                _reg = st.session_state.get("reg_config")
+                _netting_label = {"hourly": "Saatlik (net billing)", "monthly": "Aylık (net metering)"}.get(
+                    _reg.netting_mode.value if _reg else "hourly", "Saatlik (net billing)"
+                )
+                _rate_note = "TOU (üç zamanlı) — flat değer yalnızca yedek" if _has_tou else f"{_csym}/kWh · düz tarife"
                 st.markdown(f"""
                 <div class="spec-grid">
-                    <div class="spec-item"><div class="sp-label">Para birimi</div><div class="sp-value">USD ⚠️</div><div class="sp-note">TL değil — placeholder</div></div>
-                    <div class="spec-item"><div class="sp-label">Alış / Satış</div><div class="sp-value">${_t['buy_price_kwh']:.2f} / ${_t['sell_price_kwh']:.2f}</div><div class="sp-note">$/kWh · düz tarife</div></div>
-                    <div class="spec-item"><div class="sp-label">CAPEX (PV)</div><div class="sp-value">${_t['capex_per_kw']:.0f}/kW</div></div>
-                    <div class="spec-item"><div class="sp-label">O&M</div><div class="sp-value">${_t['opex_per_kw_year']:.0f}/kW-yıl</div></div>
+                    <div class="spec-item"><div class="sp-label">Para birimi</div><div class="sp-value">{_cur} ⚠️</div><div class="sp-note">yer tutucu (placeholder) değer</div></div>
+                    <div class="spec-item"><div class="sp-label">Alış / Satış</div><div class="sp-value">{_csym}{_t['buy_price_kwh']:.2f} / {_csym}{_t['sell_price_kwh']:.2f}</div><div class="sp-note">{_rate_note}</div></div>
+                    <div class="spec-item"><div class="sp-label">CAPEX (PV)</div><div class="sp-value">{_csym}{_t['capex_per_kw']:.0f}/kW</div></div>
+                    <div class="spec-item"><div class="sp-label">O&M</div><div class="sp-value">{_csym}{_t['opex_per_kw_year']:.0f}/kW-yıl</div></div>
                     <div class="spec-item"><div class="sp-label">İskonto / Enflasyon</div><div class="sp-value">%{_t['discount_rate']:.1f} / %{_t['inflation_rate']:.1f}</div><div class="sp-note">nominal</div></div>
                     <div class="spec-item"><div class="sp-label">Borç</div><div class="sp-value">%{_t['debt_fraction']:.0f} · {_t['loan_term']}y · %{_t['loan_rate']:.1f}</div></div>
                     <div class="spec-item"><div class="sp-label">Panel degradasyonu</div><div class="sp-value">%{_t.get('pv_degradation_rate', 0.5):.1f}/yıl</div></div>
                     <div class="spec-item"><div class="sp-label">Proje ömrü</div><div class="sp-value">{_t['lifetime']} yıl</div></div>
-                    <div class="spec-item"><div class="sp-label">Batarya</div><div class="sp-value">{_b['battery_capacity_kwh']:.0f} kWh / {_b['battery_power_kw']:.0f} kW</div><div class="sp-note">${_b['battery_capex_per_kwh']:.0f}/kWh</div></div>
-                    <div class="spec-item"><div class="sp-label">Batarya değişimi</div><div class="sp-value">{_b['battery_replacement_year']}. yıl</div><div class="sp-note">${_b['battery_replacement_cost_per_kwh']:.0f}/kWh</div></div>
+                    <div class="spec-item"><div class="sp-label">Batarya</div><div class="sp-value">{_b['battery_capacity_kwh']:.0f} kWh / {_b['battery_power_kw']:.0f} kW</div><div class="sp-note">{_csym}{_b['battery_capex_per_kwh']:.0f}/kWh</div></div>
+                    <div class="spec-item"><div class="sp-label">Batarya değişimi</div><div class="sp-value">{_b['battery_replacement_year']}. yıl</div><div class="sp-note">{_csym}{_b['battery_replacement_cost_per_kwh']:.0f}/kWh</div></div>
                     <div class="spec-item"><div class="sp-label">Round-trip verim</div><div class="sp-value">%{_b['round_trip_efficiency']*100:.0f}</div></div>
-                    <div class="spec-item"><div class="sp-label">Mahsuplaşma</div><div class="sp-value">Saatlik</div><div class="sp-note">net billing (varsayılan)</div></div>
+                    <div class="spec-item"><div class="sp-label">Mahsuplaşma</div><div class="sp-value">{_netting_label}</div><div class="sp-note">regülasyon config'inden</div></div>
                 </div>
                 """, unsafe_allow_html=True)
-                st.caption("Bu değerler `config/tariffs/*.yaml` dosyalarından okunur; mevzuat/piyasa değişince kod değil config güncellenir.")
+                st.caption("Bu değerler `config/tariffs/*.yaml` ve `config/regulation/*.yaml` dosyalarından okunur; mevzuat/piyasa değişince kod değil config güncellenir.")
             except Exception:
                 st.caption("Varsayım değerleri okunamadı.")
 

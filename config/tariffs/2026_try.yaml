@@ -1,0 +1,40 @@
+# PLACEHOLDER TRY (Türk Lirası) tarife konfigürasyonu — G11.
+# TÜM sayısal değerler yer tutucudur ve üretim kararı öncesi güncel EPDK/dağıtım
+# şirketi tarifeleri ve gerçek TL enflasyon/iskonto/kredi oranlarıyla DOĞRULANMALIDIR.
+# TL oynaklığı nedeniyle Türkiye'de GES fizibilitesi çoğu zaman USD üzerinden
+# modellenir (bkz. DECISIONS.md — G11 kaydı); bu config TRY modunu sunar ama
+# makro oranları kullanıcı tarafından teyit edilmeden gerçek yatırım kararında
+# kullanılmamalıdır.
+currency: "TRY"
+
+capex_per_kw: 21000.0        # PLACEHOLDER TRY/kW — CONFIRM
+opex_per_kw_year: 350.0      # PLACEHOLDER TRY/kW-yıl — CONFIRM
+inflation_rate: 35.0         # PLACEHOLDER — TL enflasyonu USD'ye göre çok daha yüksek — CONFIRM
+discount_rate: 45.0          # PLACEHOLDER nominal iskonto oranı (TRY bazlı) — CONFIRM
+lifetime: 25
+loan_term: 5                 # PLACEHOLDER — TL kredi piyasasında tipik vade daha kısa — CONFIRM
+loan_rate: 45.0               # PLACEHOLDER TL kredi faizi — CONFIRM
+debt_fraction: 50.0           # PLACEHOLDER — CONFIRM
+pv_degradation_rate: 0.5
+
+# Düz (flat) tarife — tou_periods tanımlıysa PySAM rollup'ta kullanılmaz, sadece
+# tou_periods olmayan diğer config'ler / geriye dönük uyumluluk için fallback.
+buy_price_kwh: 3.0            # PLACEHOLDER TRY/kWh — CONFIRM
+sell_price_kwh: 2.4            # PLACEHOLDER TRY/kWh — CONFIRM
+
+# Üç-zamanlı (TOU) tarife — EPDK/dağıtım şirketi "üç zamanlı tarife" yapısına
+# yaklaşık örnek saat aralıkları (gündüz/puant/gece). Saatler 0-23 aralığını
+# TAM OLARAK ve TEK SEFER bölmelidir (TariffConfig bunu doğrular).
+tou_periods:
+  - name: "gunduz"
+    hours: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    buy_price_kwh: 3.0        # PLACEHOLDER TRY/kWh — CONFIRM
+    sell_price_kwh: 2.4        # PLACEHOLDER TRY/kWh — CONFIRM
+  - name: "puant"
+    hours: [17, 18, 19, 20, 21]
+    buy_price_kwh: 5.2        # PLACEHOLDER TRY/kWh — CONFIRM
+    sell_price_kwh: 2.4        # PLACEHOLDER TRY/kWh — CONFIRM
+  - name: "gece"
+    hours: [22, 23, 0, 1, 2, 3, 4, 5]
+    buy_price_kwh: 1.8        # PLACEHOLDER TRY/kWh — CONFIRM
+    sell_price_kwh: 2.4        # PLACEHOLDER TRY/kWh — CONFIRM

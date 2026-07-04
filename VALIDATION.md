@@ -90,3 +90,17 @@ audit script used in the G10 session.
 |---|---|---|---|---|---|---|
 | 2026-07-04 | SAM-engine cash-flow audit (PySAM) | $137,200.59 | $0.04407/kWh | 3.88 yr | ✅ PASS | G10 session |
 | _optional_ | SAM desktop GUI re-entry | | | | not required | |
+
+## G11 addendum — TOU tariff wiring
+
+`TariffConfig.tou_periods` builds `ur_ec_tou_mat` (one row per period: `[period, tier,
+max_usage, max_usage_units, buy_rate, sell_rate]`) and 12×24 `ur_ec_sched_weekday`/
+`ur_ec_sched_weekend` matrices — the same documented Utilityrate5 fields already used
+(with a single flat period) and validated in G10. No new golden case was pinned since
+no production TOU rates exist yet (`config/tariffs/2026_try.yaml` is explicitly marked
+PLACEHOLDER). Instead, `tests/test_tou_tariff.py` proves the schedule is applied
+**per-hour** (not as an average): shifting the same total load between the cheap and
+expensive period changes `annual_savings`, and a TOU tariff values an identical
+gen/load series differently than an equal-average flat tariff. Re-validate against a
+real EPDK three-time tariff (and re-run the SAM-engine cash-flow audit) once actual
+TRY/TOU rates are confirmed.

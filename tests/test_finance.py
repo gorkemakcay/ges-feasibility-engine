@@ -132,6 +132,16 @@ def test_netting_mode_affects_savings(base_tariff):
     assert monthly.annual_savings >= hourly.annual_savings
 
 
+def test_currency_config_driven(base_input):
+    """G11: currency is config-driven (TariffConfig.currency) and flows into FinanceResult
+    with no code change — the display layers read this instead of hardcoding "$"."""
+    res_try = run_pv_finance(_with_tariff(base_input, currency="TRY"))
+    res_usd = run_pv_finance(_with_tariff(base_input, currency="USD"))
+
+    assert res_try.currency == "TRY"
+    assert res_usd.currency == "USD"
+
+
 def test_config_driven_degradation(base_input):
     """G10: PV degradation now lives in config; changing it changes outputs, no code change."""
     res_base = run_pv_finance(base_input)

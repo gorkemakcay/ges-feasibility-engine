@@ -11,3 +11,4 @@
 - [x] **G8:** UI (Streamlit MVP)
 - [x] **G9:** Validation & regression suite
 - [x] **G10:** Finance PySAM migration (Cashloan + Utilityrate5) & SAM input-mapping validation
+- [x] **G11:** TRY currency + netting-mode wiring + time-of-use (TOU) tariff support

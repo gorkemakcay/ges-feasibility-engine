@@ -190,3 +190,37 @@ def test_single_shift_recommends_pv_storage(site_base, consumption_df, solar_pro
     assert result.pv_storage.npv > result.pv_only.npv
     assert result.recommendation == "PV+Storage"
 
+
+def test_netting_mode_wired_from_regulation_to_finance(
+    site_base, consumption_df, solar_production, base_tariff, base_battery, base_regulation
+):
+    """G11 Part B: compare_scenarios must thread regulation_config.netting_mode into the
+    finance calls. Pre-G11, scenario/engine.py called run_pv_finance/run_pv_storage_finance
+    without netting_mode, so the regulatory regime (RegulationConfig.netting_mode) was a
+    no-op — this test fails against that bug and passes once it's wired.
+
+    Uses a night-heavy load (TRIPLE shift) against day-only solar production so hourly net
+    billing (per-timestep) and monthly net metering (rollover) value the same production
+    differently — see the equivalent finance-level test, test_netting_mode_affects_savings.
+    """
+    site_triple = site_base.model_copy(update={"shift_pattern": ShiftPattern.TRIPLE})
+
+    reg_hourly = base_regulation.model_copy(update={"netting_mode": NettingMode.HOURLY})
+    reg_monthly = base_regulation.model_copy(update={"netting_mode": NettingMode.MONTHLY})
+
+    result_hourly = compare_scenarios(
+        site=site_triple, consumption_df=consumption_df, production=solar_production,
+        tariff_config=base_tariff, battery_config=base_battery, regulation_config=reg_hourly,
+    )
+    result_monthly = compare_scenarios(
+        site=site_triple, consumption_df=consumption_df, production=solar_production,
+        tariff_config=base_tariff, battery_config=base_battery, regulation_config=reg_monthly,
+    )
+
+    assert result_hourly.pv_only.annual_savings != pytest.approx(
+        result_monthly.pv_only.annual_savings, rel=1e-3
+    )
+    # Monthly net metering credits daytime exports against nighttime imports at the
+    # retail buy rate, so it must be >= per-timestep hourly net billing.
+    assert result_monthly.pv_only.annual_savings >= result_hourly.pv_only.annual_savings
+

@@ -1,10 +1,17 @@
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import List, Optional
 
+class TOUPeriod(BaseModel):
+    """One time-of-use energy-rate period (e.g. gece/gündüz/puant)."""
+    name: str = Field(..., description="Period label, e.g. 'gunduz', 'puant', 'gece'")
+    hours: List[int] = Field(..., description="Hours of day (0-23) belonging to this period")
+    buy_price_kwh: float = Field(..., description="Grid electricity buy price for this period")
+    sell_price_kwh: float = Field(..., description="Electricity sell price to grid for this period")
+
 class TariffConfig(BaseModel):
-    capex_per_kw: float = Field(..., description="CAPEX per kW installed (USD)")
-    opex_per_kw_year: float = Field(..., description="Annual OPEX per kW (USD/year)")
+    capex_per_kw: float = Field(..., description="CAPEX per kW installed (in `currency`)")
+    opex_per_kw_year: float = Field(..., description="Annual OPEX per kW (in `currency`/year)")
     inflation_rate: float = Field(..., description="Annual inflation rate (%)")
     discount_rate: float = Field(..., description="Nominal discount rate (%)")
     lifetime: int = Field(25, description="Project lifetime in years")
@@ -12,8 +19,27 @@ class TariffConfig(BaseModel):
     loan_rate: float = Field(5.0, description="Loan annual interest rate (%)")
     debt_fraction: float = Field(70.0, description="Debt fraction of CAPEX (%)")
     pv_degradation_rate: float = Field(0.5, description="Annual PV production degradation (%/year)")
-    buy_price_kwh: float = Field(..., description="Grid electricity buy price (USD/kWh)")
-    sell_price_kwh: float = Field(..., description="Electricity sell price to grid (USD/kWh)")
+    buy_price_kwh: float = Field(..., description="Grid electricity buy price (in `currency`/kWh); flat fallback when tou_periods is unset")
+    sell_price_kwh: float = Field(..., description="Electricity sell price to grid (in `currency`/kWh); flat fallback when tou_periods is unset")
+    currency: str = Field("TRY", description="Currency code for all monetary values (e.g. TRY, USD)")
+    tou_periods: Optional[List[TOUPeriod]] = Field(
+        None,
+        description=(
+            "Optional time-of-use energy-rate periods. When set, the PySAM rollup "
+            "builds a TOU rate schedule from these instead of the flat buy/sell rate. "
+            "Hours across all periods must partition 0-23 exactly once."
+        ),
+    )
+
+    @model_validator(mode="after")
+    def _validate_tou_periods(self) -> "TariffConfig":
+        if self.tou_periods:
+            all_hours = [h for period in self.tou_periods for h in period.hours]
+            if sorted(all_hours) != list(range(24)):
+                raise ValueError(
+                    "tou_periods.hours must partition 0-23 exactly once across all periods"
+                )
+        return self
 
     @classmethod
     def from_yaml(cls, filepath: str) -> "TariffConfig":
@@ -34,6 +60,7 @@ class FinanceResult(BaseModel):
     lcoe: float
     simple_payback: float
     discounted_payback: float
+    currency: str = Field("USD", description="Currency code for all monetary fields in this result")
 
 
 class BatteryConfig(BaseModel):

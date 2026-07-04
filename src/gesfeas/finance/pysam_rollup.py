@@ -18,6 +18,9 @@ Design notes
 * ``lcoe_gen`` is the real PV production used only as the LCOE energy denominator.
 * Netting regime maps to ``ur_metering_option``: hourly netting -> net billing
   (per-timestep), monthly netting / mahsuplaşma -> net metering (monthly rollover).
+* ``TariffConfig.tou_periods`` (G11), when set, builds a real ``ur_ec_tou_mat`` +
+  ``ur_ec_sched_weekday/weekend`` schedule (one period per row) instead of the single
+  flat buy/sell period; the flat path remains the default/fallback.
 * No silent fallback: any PySAM execution failure raises ``RuntimeError``.
 """
 
@@ -27,7 +30,7 @@ from typing import List, NamedTuple, Optional, Tuple
 import PySAM.Cashloan as Cashloan
 import PySAM.Utilityrate5 as Utilityrate5
 
-from .models import TariffConfig
+from .models import TariffConfig, TOUPeriod
 
 # Netting regime -> Utilityrate5 metering option.
 #   2 = Net Billing        (per-timestep netting  -> "hourly"  / saatlik mahsup)
@@ -50,6 +53,31 @@ def _clean_payback(value: Optional[float], lifetime: int) -> float:
     if value is None or (isinstance(value, float) and math.isnan(value)) or value <= 0:
         return float(lifetime)
     return float(value)
+
+
+def _build_tou_schedule(
+    tou_periods: List[TOUPeriod],
+) -> Tuple[List[List[float]], List[List[int]], List[List[int]]]:
+    """Build ur_ec_tou_mat + 12x24 weekday/weekend period schedules from named TOU periods.
+
+    Every period applies identically across all 12 months and both weekday/weekend —
+    Turkish uc-zamanli (three-time) tariffs don't vary by month or day-of-week, only by
+    hour-of-day. TariffConfig validates that ``hours`` partitions 0-23 exactly once.
+    """
+    hour_to_period = {}
+    for period_num, period in enumerate(tou_periods, start=1):
+        for hour in period.hours:
+            hour_to_period[hour] = period_num
+
+    day_schedule = [hour_to_period[h] for h in range(24)]
+    sched_weekday = [day_schedule[:] for _ in range(12)]
+    sched_weekend = [day_schedule[:] for _ in range(12)]
+
+    tou_mat = [
+        [period_num, 1, 9.9e37, 0, period.buy_price_kwh, period.sell_price_kwh]
+        for period_num, period in enumerate(tou_periods, start=1)
+    ]
+    return tou_mat, sched_weekday, sched_weekend
 
 
 def run_cashloan_rollup(
@@ -109,11 +137,23 @@ def run_cashloan_rollup(
     er.en_electricity_rates = 1
     er.ur_metering_option = NETTING_TO_METERING[netting_mode]
     er.ur_monthly_fixed_charge = 0.0
-    # Single flat energy-charge period (buy/sell) for all months/hours.
-    er.ur_ec_sched_weekday = [[1] * 24] * 12
-    er.ur_ec_sched_weekend = [[1] * 24] * 12
-    er.ur_ec_tou_mat = [[1, 1, 9.9e37, 0, buy, sell]]
-    er.ur_nm_yearend_sell_rate = sell
+    if tariff.tou_periods:
+        # Time-of-use schedule: one ur_ec_tou_mat row per named period (gece/gunduz/puant).
+        tou_mat, sched_weekday, sched_weekend = _build_tou_schedule(tariff.tou_periods)
+        er.ur_ec_sched_weekday = sched_weekday
+        er.ur_ec_sched_weekend = sched_weekend
+        er.ur_ec_tou_mat = tou_mat
+        # Net-metering year-end true-up rate: average sell rate across periods (SAM
+        # requires a single scalar here; there is no per-period true-up in Utilityrate5).
+        er.ur_nm_yearend_sell_rate = sum(p.sell_price_kwh for p in tariff.tou_periods) / len(
+            tariff.tou_periods
+        )
+    else:
+        # Single flat energy-charge period (buy/sell) for all months/hours.
+        er.ur_ec_sched_weekday = [[1] * 24] * 12
+        er.ur_ec_sched_weekend = [[1] * 24] * 12
+        er.ur_ec_tou_mat = [[1, 1, 9.9e37, 0, buy, sell]]
+        er.ur_nm_yearend_sell_rate = sell
 
     try:
         ur.execute(0)

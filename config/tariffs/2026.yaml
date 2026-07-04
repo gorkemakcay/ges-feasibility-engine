@@ -9,3 +9,5 @@ debt_fraction: 70.0
 pv_degradation_rate: 0.5
 buy_price_kwh: 0.12
 sell_price_kwh: 0.08
+# Historical USD placeholder tariff (G3-G10). Flat rate only — no tou_periods.
+currency: "USD"

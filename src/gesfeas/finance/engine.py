@@ -47,4 +47,5 @@ def run_pv_finance(inputs: FinanceInput, netting_mode: str = "hourly") -> Financ
         lcoe=result.lcoe,
         simple_payback=result.simple_payback,
         discounted_payback=result.discounted_payback,
+        currency=t.currency,
     )

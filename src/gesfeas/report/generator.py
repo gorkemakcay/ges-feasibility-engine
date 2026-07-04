@@ -8,6 +8,14 @@ from gesfeas.scenario.models import ScenarioResult
 from gesfeas.input.models import SiteParameters
 from gesfeas.production.models import ProductionResult
 
+# Display symbol per currency code. Unknown codes fall back to "<CODE> " as a prefix.
+CURRENCY_SYMBOLS = {"USD": "$", "TRY": "₺", "EUR": "€"}
+
+
+def currency_symbol(currency_code: str) -> str:
+    """Return the display symbol/prefix for a currency code (config-driven, not hardcoded)."""
+    return CURRENCY_SYMBOLS.get(currency_code.upper(), f"{currency_code} ")
+
 
 def generate_report_html(
     scenario_result: ScenarioResult,
@@ -62,6 +70,7 @@ def generate_report_html(
         monthly_consumption=monthly_consumption,
         total_consumption=total_consumption,
         report_date=report_date,
+        currency_symbol=currency_symbol(scenario_result.pv_only.currency),
     )
 
     return html_content

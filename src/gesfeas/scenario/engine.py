@@ -34,7 +34,10 @@ def compare_scenarios(
         monthly_consumption = consumption_df.groupby(consumption_df.index.month)['consumption_kwh'].sum().tolist()
         
     hourly_load = generate_hourly_load_profile(monthly_consumption, site.shift_pattern)
-    
+
+    # Regulatory netting regime (saatlik/aylık mahsuplaşma) must drive bill valuation.
+    netting_mode = regulation_config.netting_mode.value
+
     # ---------------------------------------------------------
     # 1. PV-Only Scenario
     # ---------------------------------------------------------
@@ -44,7 +47,7 @@ def compare_scenarios(
         consumption_series=hourly_load,
         tariff=tariff_config
     )
-    pv_only_result = run_pv_finance(pv_input)
+    pv_only_result = run_pv_finance(pv_input, netting_mode=netting_mode)
     
     # Calculate self-consumption ratio for PV-only to feed into regulation check
     pv_to_load = sum(min(p, l) for p, l in zip(production.hourly_production_kwh, hourly_load))
@@ -71,7 +74,7 @@ def compare_scenarios(
         tariff=tariff_config,
         battery=battery_config
     )
-    pv_storage_result = run_pv_storage_finance(battery_input)
+    pv_storage_result = run_pv_storage_finance(battery_input, netting_mode=netting_mode)
     
     pv_storage_compliance = evaluate_compliance(
         site=site,

@@ -142,9 +142,9 @@
                 <th>Yatırım Tutarı (CAPEX)</th>
                 <td>
                     {% if scenario_result.recommendation == 'pv_only' %}
-                        ${{ "{:,.2f}".format(scenario_result.pv_only.capex) }}
+                        {{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_only.capex) }}
                     {% else %}
-                        ${{ "{:,.2f}".format(scenario_result.pv_storage.capex) }}
+                        {{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_storage.capex) }}
                     {% endif %}
                 </td>
             </tr>
@@ -152,9 +152,9 @@
                 <th>Net Bugünkü Değer (NPV)</th>
                 <td>
                     {% if scenario_result.recommendation == 'pv_only' %}
-                        ${{ "{:,.2f}".format(scenario_result.pv_only.npv) }}
+                        {{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_only.npv) }}
                     {% else %}
-                        ${{ "{:,.2f}".format(scenario_result.pv_storage.npv) }}
+                        {{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_storage.npv) }}
                     {% endif %}
                 </td>
             </tr>
@@ -220,10 +220,10 @@
     <div class="section">
         <h2>Finansal Analiz (Sadece GES Senaryosu)</h2>
         <table>
-            <tr><th>Yatırım Tutarı (CAPEX)</th><td>${{ "{:,.2f}".format(scenario_result.pv_only.capex) }}</td></tr>
-            <tr><th>Yıllık Tasarruf (İlk Yıl)</th><td>${{ "{:,.2f}".format(scenario_result.pv_only.annual_savings) }}</td></tr>
-            <tr><th>Net Bugünkü Değer (NPV)</th><td>${{ "{:,.2f}".format(scenario_result.pv_only.npv) }}</td></tr>
-            <tr><th>Seviyelendirilmiş Enerji Maliyeti (LCOE)</th><td>${{ "{:,.4f}".format(scenario_result.pv_only.lcoe) }} / kWh</td></tr>
+            <tr><th>Yatırım Tutarı (CAPEX)</th><td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_only.capex) }}</td></tr>
+            <tr><th>Yıllık Tasarruf (İlk Yıl)</th><td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_only.annual_savings) }}</td></tr>
+            <tr><th>Net Bugünkü Değer (NPV)</th><td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_only.npv) }}</td></tr>
+            <tr><th>Seviyelendirilmiş Enerji Maliyeti (LCOE)</th><td>{{ currency_symbol }}{{ "{:,.4f}".format(scenario_result.pv_only.lcoe) }} / kWh</td></tr>
             <tr><th>Basit Geri Ödeme Süresi</th><td>{{ scenario_result.pv_only.simple_payback | round(2) }} yıl</td></tr>
             <tr><th>İskontolu Geri Ödeme Süresi</th><td>{{ scenario_result.pv_only.discounted_payback | round(2) }} yıl</td></tr>
         </table>
@@ -233,10 +233,10 @@
     <div class="section">
         <h2>Finansal Analiz (GES + Depolama Senaryosu)</h2>
         <table>
-            <tr><th>Yatırım Tutarı (CAPEX)</th><td>${{ "{:,.2f}".format(scenario_result.pv_storage.capex) }}</td></tr>
-            <tr><th>Yıllık Tasarruf (İlk Yıl)</th><td>${{ "{:,.2f}".format(scenario_result.pv_storage.annual_savings) }}</td></tr>
-            <tr><th>Net Bugünkü Değer (NPV)</th><td>${{ "{:,.2f}".format(scenario_result.pv_storage.npv) }}</td></tr>
-            <tr><th>Seviyelendirilmiş Enerji Maliyeti (LCOE)</th><td>${{ "{:,.4f}".format(scenario_result.pv_storage.lcoe) }} / kWh</td></tr>
+            <tr><th>Yatırım Tutarı (CAPEX)</th><td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_storage.capex) }}</td></tr>
+            <tr><th>Yıllık Tasarruf (İlk Yıl)</th><td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_storage.annual_savings) }}</td></tr>
+            <tr><th>Net Bugünkü Değer (NPV)</th><td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_storage.npv) }}</td></tr>
+            <tr><th>Seviyelendirilmiş Enerji Maliyeti (LCOE)</th><td>{{ currency_symbol }}{{ "{:,.4f}".format(scenario_result.pv_storage.lcoe) }} / kWh</td></tr>
             <tr><th>Basit Geri Ödeme Süresi</th><td>{{ scenario_result.pv_storage.simple_payback | round(2) }} yıl</td></tr>
             <tr><th>İskontolu Geri Ödeme Süresi</th><td>{{ scenario_result.pv_storage.discounted_payback | round(2) }} yıl</td></tr>
             <tr><th>Öz Tüketim Oranı</th><td>{{ (scenario_result.pv_storage.self_consumption_ratio * 100) | round(2) }}%</td></tr>
@@ -257,10 +257,10 @@
             <tr>
                 <td>NPV</td>
                 <td class="{% if scenario_result.pv_only.npv > scenario_result.pv_storage.npv %}success{% endif %}">
-                    ${{ "{:,.2f}".format(scenario_result.pv_only.npv) }}
+                    {{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_only.npv) }}
                 </td>
                 <td class="{% if scenario_result.pv_storage.npv > scenario_result.pv_only.npv %}success{% endif %}">
-                    ${{ "{:,.2f}".format(scenario_result.pv_storage.npv) }}
+                    {{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_storage.npv) }}
                 </td>
             </tr>
             <tr>
@@ -270,8 +270,8 @@
             </tr>
             <tr>
                 <td>CAPEX</td>
-                <td>${{ "{:,.2f}".format(scenario_result.pv_only.capex) }}</td>
-                <td>${{ "{:,.2f}".format(scenario_result.pv_storage.capex) }}</td>
+                <td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_only.capex) }}</td>
+                <td>{{ currency_symbol }}{{ "{:,.2f}".format(scenario_result.pv_storage.capex) }}</td>
             </tr>
         </table>
     </div>

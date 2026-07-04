@@ -296,4 +296,5 @@ def run_pv_storage_finance(
         self_consumption_ratio=dispatch.self_consumption_ratio,
         grid_export_ratio=dispatch.grid_export_ratio,
         battery_cycles_year1=dispatch.battery_cycles_year1,
+        currency=t.currency,
     )
