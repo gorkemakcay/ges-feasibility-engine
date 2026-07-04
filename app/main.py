@@ -178,6 +178,7 @@ def inject_custom_css():
             padding: 1.2rem;
             text-align: left;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap;
         }
         .custom-table th {
             font-weight: 600;
@@ -252,7 +253,7 @@ def inject_custom_css():
         }
         .stTabs [data-baseweb="tab"] {
             height: 50px;
-            white-space: pre-wrap;
+            white-space: nowrap;
             background-color: transparent;
             border-radius: 4px 4px 0px 0px;
             gap: 1px;
@@ -261,6 +262,26 @@ def inject_custom_css():
         }
         .stTabs [aria-selected="true"] {
             color: #38bdf8 !important;
+        }
+        
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero { padding: 3rem 1rem; }
+            .hero-title { font-size: 2.2rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .glass-card { padding: 1.5rem; }
+            .kpi-value { font-size: 1.8rem; }
+            .custom-table th, .custom-table td { 
+                padding: 0.8rem; 
+                font-size: 0.9rem; 
+            }
+            .stTabs [data-baseweb="tab-list"] { gap: 8px; }
+            .stTabs [data-baseweb="tab"] { 
+                padding-left: 10px; 
+                padding-right: 10px; 
+                font-size: 0.9rem;
+            }
+            .stButton>button { width: 100%; }
         }
     </style>
     """, unsafe_allow_html=True)
