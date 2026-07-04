@@ -247,6 +247,68 @@ def inject_custom_css():
             color: white;
         }
 
+        /* ---------------- ANIMATIONS ---------------- */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.6); }
+            100% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+        }
+        
+        /* Base Entry Animations (Fallback for browsers without scroll-driven anims) */
+        .hero {
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .glass-card {
+            opacity: 0;
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .glass-card:nth-child(1) { animation-delay: 0.1s; }
+        .glass-card:nth-child(2) { animation-delay: 0.3s; }
+        .glass-card:nth-child(3) { animation-delay: 0.5s; }
+        
+        .table-responsive {
+            opacity: 0;
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.7s;
+        }
+        
+        .card-icon {
+            display: inline-block;
+            animation: float 3.5s ease-in-out infinite;
+        }
+        
+        .stButton>button {
+            animation: pulseGlow 2.5s infinite;
+        }
+        .stButton>button:hover {
+            animation: none; /* Reset on hover */
+        }
+        
+        /* 🔥 Scroll-Driven Animations (Modern Browsers) */
+        @supports (animation-timeline: view()) {
+            .glass-card, .table-responsive, .kpi-card, h2, h3, .stAlert {
+                animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+                animation-timeline: view() !important;
+                animation-range: entry 5% cover 25% !important;
+            }
+            .hero {
+                /* Hero should just animate on load, not scroll */
+                animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+            }
+        }
+        
         /* Tabs styling */
         .stTabs [data-baseweb="tab-list"] {
             gap: 24px;
@@ -282,6 +344,13 @@ def inject_custom_css():
                 font-size: 0.9rem;
             }
             .stButton>button { width: 100%; }
+            
+            /* Tweak animation range for mobile screens (needs to trigger earlier) */
+            @supports (animation-timeline: view()) {
+                .glass-card, .table-responsive, .kpi-card, h2, h3, .stAlert {
+                    animation-range: entry 2% cover 15% !important;
+                }
+            }
         }
     </style>
     """, unsafe_allow_html=True)
