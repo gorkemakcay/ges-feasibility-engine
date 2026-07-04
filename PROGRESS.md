@@ -6,7 +6,7 @@
 - [x] **G3:** Finance engine (PySAM integration)
 - [x] **G4:** Battery scenario (PySAM)
 - [x] **G5:** Regulation rule engine (config-driven)
-- [ ] **G6:** Scenario comparison & logic
+- [x] **G6:** Scenario comparison & logic
 - [ ] **G7:** Report generator
 - [ ] **G8:** UI (Streamlit MVP)
 - [ ] **G9:** Validation & regression suite
