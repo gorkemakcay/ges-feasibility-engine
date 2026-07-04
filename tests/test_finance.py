@@ -42,13 +42,13 @@ def test_finance_golden_file(base_input):
     result = run_pv_finance(base_input)
     
     golden_path = os.path.join(os.path.dirname(__file__), "golden", "g3_reference.json")
-    
-    # If golden file does not exist or we want to overwrite it, we can create it
-    # For now, we will update it dynamically in the test or read it
-    if not os.path.exists(golden_path):
-        with open(golden_path, "w") as f:
-            f.write(result.model_dump_json(indent=4))
-            
+
+    # Golden must exist and match — no self-healing auto-write (drift must fail loudly).
+    assert os.path.exists(golden_path), (
+        "g3_reference.json is missing. Regenerate it deliberately via "
+        "scratch/regen_goldens_g10.py and review the change."
+    )
+
     with open(golden_path, "r") as f:
         golden_data = json.load(f)
         
@@ -74,7 +74,68 @@ def test_finance_config_driven(base_input):
         tariff=t2
     )
     res_mod = run_pv_finance(input2)
-    
+
     assert res_mod.capex > res_base.capex
     assert res_mod.annual_savings > res_base.annual_savings
     assert res_mod.npv != res_base.npv
+
+
+def _with_tariff(base_input, **updates):
+    """Clone a FinanceInput with a modified tariff (no code change to the engine)."""
+    t2 = base_input.tariff.model_copy(update=updates)
+    return FinanceInput(
+        system_size_kw=base_input.system_size_kw,
+        production_series=base_input.production_series,
+        consumption_series=base_input.consumption_series,
+        tariff=t2,
+    )
+
+
+def test_debt_params_affect_npv(base_input):
+    """G10: debt_fraction/loan_rate were previously DEAD — now they must move NPV.
+
+    This test fails against the old hand-rolled (all-equity) engine and passes
+    against the PySAM Cashloan engine that actually models the loan.
+    """
+    base = run_pv_finance(base_input)
+
+    res_cheap_loan = run_pv_finance(_with_tariff(base_input, loan_rate=0.0))
+    res_expensive_loan = run_pv_finance(_with_tariff(base_input, loan_rate=15.0))
+    # Loan rate below the discount rate adds leverage value; above it destroys value.
+    assert res_cheap_loan.npv > base.npv > res_expensive_loan.npv
+
+    res_no_debt = run_pv_finance(_with_tariff(base_input, debt_fraction=0.0))
+    # Changing the debt fraction must change NPV (proves the param is live).
+    assert res_no_debt.npv != pytest.approx(base.npv, rel=1e-4)
+
+
+def test_netting_mode_affects_savings(base_tariff):
+    """G10: hourly (net billing) vs monthly (net metering) must value energy differently.
+
+    Uses a day-generation / night-heavy-load profile so export hours and import
+    hours differ. Monthly net metering credits daytime exports against nighttime
+    imports at the retail buy rate, so it is >= per-timestep net billing (hourly).
+    """
+    gen, load = [], []
+    for h in range(8760):
+        hod = h % 24
+        gen.append(30.0 if 8 <= hod < 16 else 0.0)
+        load.append(20.0 if (hod < 8 or hod >= 16) else 5.0)
+    inp = FinanceInput(
+        system_size_kw=100.0, production_series=gen,
+        consumption_series=load, tariff=base_tariff,
+    )
+    hourly = run_pv_finance(inp, netting_mode="hourly")
+    monthly = run_pv_finance(inp, netting_mode="monthly")
+
+    assert hourly.annual_savings != pytest.approx(monthly.annual_savings, rel=1e-3)
+    assert monthly.annual_savings >= hourly.annual_savings
+
+
+def test_config_driven_degradation(base_input):
+    """G10: PV degradation now lives in config; changing it changes outputs, no code change."""
+    res_base = run_pv_finance(base_input)
+    res_high_deg = run_pv_finance(_with_tariff(base_input, pv_degradation_rate=2.0))
+    # Faster degradation → less lifetime energy → lower NPV, higher LCOE.
+    assert res_high_deg.npv < res_base.npv
+    assert res_high_deg.lcoe > res_base.lcoe

@@ -11,6 +11,7 @@ class TariffConfig(BaseModel):
     loan_term: int = Field(10, description="Loan term in years")
     loan_rate: float = Field(5.0, description="Loan annual interest rate (%)")
     debt_fraction: float = Field(70.0, description="Debt fraction of CAPEX (%)")
+    pv_degradation_rate: float = Field(0.5, description="Annual PV production degradation (%/year)")
     buy_price_kwh: float = Field(..., description="Grid electricity buy price (USD/kWh)")
     sell_price_kwh: float = Field(..., description="Electricity sell price to grid (USD/kWh)")
 

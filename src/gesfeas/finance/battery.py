@@ -8,17 +8,15 @@ Generates hourly load profiles from monthly consumption using shift patterns.
 import datetime
 from typing import List, NamedTuple
 
-import PySAM.Lcoefcr as lcoe
-
 from gesfeas.input.models import ShiftPattern
 from .models import BatteryConfig, BatteryFinanceInput, BatteryFinanceResult, TariffConfig
+from .pysam_rollup import run_cashloan_rollup
 
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 REFERENCE_YEAR = 2026  # Non-leap year → 365 days → 8 760 hours
-PV_DEGRADATION_RATE = 0.005  # 0.5 %/year (matches G3 engine.py)
 
 # Hourly load-weight profiles per shift pattern (24 values for hours 0–23).
 # Higher weight ⇒ higher load intensity in that hour.
@@ -126,6 +124,9 @@ class DispatchResult(NamedTuple):
     self_consumption_ratio: float
     grid_export_ratio: float
     battery_cycles_year1: float
+    # 8760 hourly system output seen by the meter (PV - battery charge + discharge).
+    # Fed to Utilityrate5 (alongside the real load) so battery value flows into finance.
+    effective_gen: List[float]
 
 
 def _run_dispatch(
@@ -158,10 +159,13 @@ def _run_dispatch(
     pv_to_grid = 0.0
     battery_to_load = 0.0
     total_discharge_energy = 0.0  # Energy removed from battery (pre-loss)
+    effective_gen: List[float] = []  # PV - charge + discharge, per hour (meter view)
 
     for h in range(8760):
         pv = hourly_production[h]
         load = hourly_load[h]
+        charge = 0.0
+        discharge = 0.0
 
         # 1. Direct self-consumption
         direct = min(pv, load)
@@ -192,6 +196,9 @@ def _run_dispatch(
         # 4. Export remaining PV / import remaining load
         pv_to_grid += remaining_pv
 
+        # System output seen by the meter this hour.
+        effective_gen.append(pv - charge + discharge)
+
     total_pv = sum(hourly_production)
 
     # ---- Physical metrics ----
@@ -221,6 +228,7 @@ def _run_dispatch(
         self_consumption_ratio=self_consumption_ratio,
         grid_export_ratio=grid_export_ratio,
         battery_cycles_year1=battery_cycles,
+        effective_gen=effective_gen,
     )
 
 
@@ -228,12 +236,17 @@ def _run_dispatch(
 # PV + Storage finance engine
 # ---------------------------------------------------------------------------
 
-def run_pv_storage_finance(inputs: BatteryFinanceInput) -> BatteryFinanceResult:
+def run_pv_storage_finance(
+    inputs: BatteryFinanceInput, netting_mode: str = "hourly"
+) -> BatteryFinanceResult:
     """Run the PV+Storage techno-economic model.
 
     1. Generate hourly load profile from monthly consumption + shift pattern.
-    2. Simulate battery dispatch for year 1.
-    3. Compute lifetime cash flows (NPV, LCOE, payback).
+    2. Simulate battery dispatch for year 1 (hand-rolled ``_run_dispatch``).
+    3. Value the post-dispatch grid flows and roll up NPV / payback / LCOE via
+       PySAM Utilityrate5 + Cashloan (G10). The battery is represented by feeding
+       the dispatch's ``effective_gen`` (PV - charge + discharge) as the metered
+       system output alongside the REAL load, so storage value flows into finance.
 
     The existing PV-only path (``run_pv_finance``) is not touched.
     """
@@ -244,7 +257,7 @@ def run_pv_storage_finance(inputs: BatteryFinanceInput) -> BatteryFinanceResult:
     # ---- Hourly load profile ----
     hourly_load = generate_hourly_load_profile(inputs.monthly_consumption, shift)
 
-    # ---- Battery dispatch (year 1) ----
+    # ---- Battery dispatch (year 1) — physical metrics + metered output ----
     dispatch = _run_dispatch(inputs.production_series, hourly_load, bat, t)
 
     # ---- CAPEX ----
@@ -252,88 +265,34 @@ def run_pv_storage_finance(inputs: BatteryFinanceInput) -> BatteryFinanceResult:
     battery_capex = bat.battery_capacity_kwh * bat.battery_capex_per_kwh
     total_capex = pv_capex + battery_capex
 
-    # ---- LCOE (PySAM Lcoefcr) ----
-    # LCOE is computed on PV generation; battery shifts timing, doesn't generate.
-    year1_gen = sum(inputs.production_series)
+    # ---- One-off battery replacement cost (placed in replacement year) ----
+    replacement = (
+        bat.battery_replacement_year,
+        bat.battery_capacity_kwh * bat.battery_replacement_cost_per_kwh,
+    )
 
-    m = lcoe.new()
-    m.SimpleLCOE.capital_cost = total_capex
-    m.SimpleLCOE.fixed_operating_cost = inputs.system_size_kw * t.opex_per_kw_year
-    m.SimpleLCOE.variable_operating_cost = 0.0
-
-    rate = t.discount_rate / 100.0
-    if rate > 0:
-        fcr = rate / (1 - (1 + rate) ** -t.lifetime)
-    else:
-        fcr = 1.0 / t.lifetime
-    m.SimpleLCOE.fixed_charge_rate = fcr
-    m.SimpleLCOE.annual_energy = year1_gen
-    m.execute()
-    lcoe_val = m.Outputs.lcoe_fcr
-
-    # ---- Cash flow, NPV, payback ----
-    inflation = t.inflation_rate / 100.0
-    discount = t.discount_rate / 100.0
-    pv_deg = PV_DEGRADATION_RATE
-    bat_deg = bat.battery_degradation_rate
-    replacement_year = bat.battery_replacement_year
-
-    pv_direct_sav = dispatch.pv_direct_savings
-    bat_incr_sav = dispatch.battery_incremental_savings
-
-    npv = float(-total_capex)
-    cumulative_cash = float(-total_capex)
-    cumulative_disc = float(-total_capex)
-    simple_payback = -1.0
-    discounted_payback = -1.0
-
-    for year in range(1, t.lifetime + 1):
-        # PV production degradation
-        pv_factor = (1 - pv_deg) ** (year - 1)
-
-        # Battery capacity degradation (resets after replacement)
-        if year > replacement_year:
-            years_since = year - replacement_year
-            bat_factor = max(0.0, (1 - bat_deg) ** (years_since - 1))
-        else:
-            bat_factor = max(0.0, (1 - bat_deg) ** (year - 1))
-
-        infl_factor = (1 + inflation) ** (year - 1)
-
-        current_savings = (
-            pv_direct_sav * pv_factor
-            + bat_incr_sav * pv_factor * bat_factor
-        ) * infl_factor
-        current_opex = (inputs.system_size_kw * t.opex_per_kw_year) * infl_factor
-
-        net_cf = current_savings - current_opex
-
-        # Battery replacement cost
-        if year == replacement_year:
-            replacement_cost = (
-                bat.battery_capacity_kwh * bat.battery_replacement_cost_per_kwh
-            )
-            net_cf -= replacement_cost
-
-        disc_cf = net_cf / ((1 + discount) ** year)
-        npv += disc_cf
-
-        # Payback tracking
-        if cumulative_cash < 0 and cumulative_cash + net_cf >= 0 and simple_payback < 0:
-            simple_payback = (year - 1) + abs(cumulative_cash) / net_cf
-        cumulative_cash += net_cf
-
-        if cumulative_disc < 0 and cumulative_disc + disc_cf >= 0 and discounted_payback < 0:
-            discounted_payback = (year - 1) + abs(cumulative_disc) / disc_cf
-        cumulative_disc += disc_cf
+    # ---- PySAM rollup ----
+    # gen_meter = dispatch effective output; load = real load; lcoe_gen = raw PV.
+    rollup = run_cashloan_rollup(
+        gen_meter=dispatch.effective_gen,
+        load=hourly_load,
+        lcoe_gen=inputs.production_series,
+        total_capex=total_capex,
+        system_kw=inputs.system_size_kw,
+        opex_per_kw_year=t.opex_per_kw_year,
+        tariff=t,
+        degradation_pct=t.pv_degradation_rate,
+        netting_mode=netting_mode,
+        replacement=replacement,
+    )
 
     return BatteryFinanceResult(
         capex=total_capex,
-        annual_savings=dispatch.year1_savings,
-        npv=npv,
-        lcoe=lcoe_val,
-        simple_payback=simple_payback if simple_payback > 0 else float(t.lifetime),
-        discounted_payback=discounted_payback if discounted_payback > 0 else float(t.lifetime),
+        annual_savings=rollup.annual_savings,
+        npv=rollup.npv,
+        lcoe=rollup.lcoe,
+        simple_payback=rollup.simple_payback,
+        discounted_payback=rollup.discounted_payback,
         self_consumption_ratio=dispatch.self_consumption_ratio,
         grid_export_ratio=dispatch.grid_export_ratio,
         battery_cycles_year1=dispatch.battery_cycles_year1,

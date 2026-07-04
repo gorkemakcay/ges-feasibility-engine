@@ -128,11 +128,11 @@ def test_battery_golden_file(base_battery_input):
         os.path.dirname(__file__), "golden", "g4_reference.json"
     )
 
-    # First run creates the golden file
-    if not os.path.exists(golden_path):
-        os.makedirs(os.path.dirname(golden_path), exist_ok=True)
-        with open(golden_path, "w") as f:
-            f.write(result.model_dump_json(indent=4))
+    # Golden must exist and match — no self-healing auto-write (drift must fail loudly).
+    assert os.path.exists(golden_path), (
+        "g4_reference.json is missing. Regenerate it deliberately via "
+        "scratch/regen_goldens_g10.py and review the change."
+    )
 
     with open(golden_path, "r") as f:
         golden = json.load(f)
@@ -322,3 +322,47 @@ def test_battery_result_is_subclass():
     """BatteryFinanceResult should extend FinanceResult."""
     from gesfeas.finance.models import FinanceResult
     assert issubclass(BatteryFinanceResult, FinanceResult)
+
+
+# ---------------------------------------------------------------------------
+# G10: battery value flows through the financials via the metered net series
+# ---------------------------------------------------------------------------
+
+def test_battery_value_flows_through(base_tariff, base_battery, solar_production):
+    """PV+Storage must beat PV-only on annual bill savings for a night-heavy load.
+
+    The dispatch feeds its post-dispatch metered output (effective_gen) into
+    Utilityrate5 instead of the raw load, so storage that shifts daytime PV
+    (otherwise exported at the low sell price) to nighttime load (offsetting the
+    high buy price) increases the valued savings.
+    """
+    from gesfeas.finance.battery import generate_hourly_load_profile
+    from gesfeas.finance.engine import run_pv_finance
+    from gesfeas.finance.models import FinanceInput
+
+    monthly = [100_000.0 / 12] * 12
+
+    storage = run_pv_storage_finance(
+        BatteryFinanceInput(
+            system_size_kw=100.0,
+            production_series=solar_production,
+            monthly_consumption=monthly,
+            shift_pattern=ShiftPattern.TRIPLE.value,  # 24h / night-heavy load
+            tariff=base_tariff,
+            battery=base_battery,
+        )
+    )
+
+    # PV-only baseline on the SAME hourly load the dispatch used.
+    hourly_load = generate_hourly_load_profile(monthly, ShiftPattern.TRIPLE)
+    pv_only = run_pv_finance(
+        FinanceInput(
+            system_size_kw=100.0,
+            production_series=solar_production,
+            consumption_series=hourly_load,
+            tariff=base_tariff,
+        )
+    )
+
+    # Battery shifts export→self-consumption, raising the valued annual savings.
+    assert storage.annual_savings > pv_only.annual_savings
