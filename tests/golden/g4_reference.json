@@ -1,0 +1,11 @@
+{
+    "capex": 110000.0,
+    "annual_savings": 15847.918906666531,
+    "npv": 60945.81758342764,
+    "lcoe": 0.07536443797144286,
+    "simple_payback": 6.998665239235901,
+    "discounted_payback": 10.353968591015494,
+    "self_consumption_ratio": 0.6791236806530317,
+    "grid_export_ratio": 0.32087631934694844,
+    "battery_cycles_year1": 80.63593077253614
+}

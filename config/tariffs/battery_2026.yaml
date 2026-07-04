@@ -1,0 +1,10 @@
+# Battery storage configuration for PV+Storage scenarios (2026)
+# All values are config-driven — NEVER hardcode battery cost or sizing in Python.
+
+battery_capex_per_kwh: 250.0              # Battery CAPEX (USD/kWh of capacity)
+battery_capacity_kwh: 200.0                # Total battery energy capacity (kWh)
+battery_power_kw: 50.0                     # Max charge/discharge power (kW)
+round_trip_efficiency: 0.90                # Round-trip efficiency (0–1)
+battery_degradation_rate: 0.02             # Annual capacity degradation (fraction/year)
+battery_replacement_year: 12               # Year when battery is replaced
+battery_replacement_cost_per_kwh: 200.0    # Battery replacement cost (USD/kWh)
