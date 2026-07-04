@@ -7,6 +7,6 @@
 - [x] **G4:** Battery scenario (PySAM)
 - [x] **G5:** Regulation rule engine (config-driven)
 - [x] **G6:** Scenario comparison & logic
-- [ ] **G7:** Report generator
+- [x] **G7:** Report generator
 - [ ] **G8:** UI (Streamlit MVP)
 - [ ] **G9:** Validation & regression suite
