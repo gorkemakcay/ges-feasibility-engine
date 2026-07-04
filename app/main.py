@@ -326,8 +326,60 @@ def inject_custom_css():
             color: #38bdf8 !important;
         }
         
+        /* ---- Info / Methodology panels (domain-expert notes) ---- */
+        .method-note {
+            background: rgba(30, 41, 59, 0.5);
+            border-left: 4px solid #38bdf8;
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin: 0.9rem 0;
+            color: #cbd5e1;
+            font-size: 0.98rem;
+            line-height: 1.65;
+        }
+        .method-note .mn-title {
+            color: #f8fafc;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.45rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .method-note code {
+            background: rgba(56,189,248,0.12);
+            color: #7dd3fc;
+            padding: 1px 6px; border-radius: 5px;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        .method-note.warn { border-left-color: #fbbf24; background: rgba(251,191,36,0.06); }
+        .method-note.warn .mn-title { color: #fcd34d; }
+
+        /* Key-assumption spec grid */
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0 1.5rem 0;
+        }
+        .spec-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 0.9rem 1.1rem;
+        }
+        .spec-item .sp-label { color:#94a3b8; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.5px; }
+        .spec-item .sp-value { color:#e2e8f0; font-size:1.15rem; font-weight:700; margin-top:0.25rem; }
+        .spec-item .sp-note { color:#64748b; font-size:0.78rem; margin-top:0.15rem; }
+
         /* Mobile Responsive Adjustments */
         @media (max-width: 768px) {
+            .method-note { padding: 1rem 1.1rem; font-size: 0.92rem; margin: 0.7rem 0; }
+            .method-note .mn-title { font-size: 0.98rem; }
+            .method-note code { white-space: normal; word-break: break-word; }
+            .spec-grid { grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+            .spec-item { padding: 0.7rem 0.8rem; }
+            .spec-item .sp-value { font-size: 1rem; }
+            .spec-item .sp-label { font-size: 0.7rem; }
             .hero { padding: 3rem 1rem; }
             .hero-title { font-size: 2.2rem; }
             .hero-subtitle { font-size: 1rem; }
@@ -352,126 +404,211 @@ def inject_custom_css():
                 }
             }
         }
+
+        /* Very small phones: single-column assumption grid */
+        @media (max-width: 480px) {
+            .spec-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 1.9rem; }
+        }
     </style>
     """, unsafe_allow_html=True)
 
 inject_custom_css()
 
 # --- MAIN LAYOUT ---
-tab_landing, tab_calc, tab_dash = st.tabs(["🚀 Discover", "⚙️ Feasibility Calculator", "📊 Results Dashboard"])
+tab_landing, tab_calc, tab_dash = st.tabs(["🚀 Keşfet", "⚙️ Fizibilite Kalkülatörü", "📊 Sonuç Panosu"])
 
 # --- TAB 1: LANDING PAGE ---
 with tab_landing:
     st.markdown("""
     <div class="hero">
-        <h1 class="hero-title">The Future of Solar Feasibility is Here</h1>
+        <h1 class="hero-title">GES Fizibilitesinin Geleceği Burada</h1>
         <p class="hero-subtitle">
-            Skip the legacy CAD tools and weeks of manual Excel modeling. Generate 
-            EPDK-compliant, financially optimized PV and Battery feasibility reports 
-            in under 2 minutes.
+            Eski CAD araçlarını ve haftalarca süren manuel Excel modellemesini geride bırak.
+            EPDK uyumlu, finansal olarak optimize edilmiş PV ve batarya fizibilite raporlarını
+            2 dakikadan kısa sürede üret.
         </p>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("<h2 style='text-align: center; margin-bottom: 2rem;'>Why Choose GES Feasibility Engine?</h2>", unsafe_allow_html=True)
-    
+
+    st.markdown("<h2 style='text-align: center; margin-bottom: 2rem;'>Neden GES Feasibility Engine?</h2>", unsafe_allow_html=True)
+
     st.markdown("""
     <div class="glass-card-container">
         <div class="glass-card">
             <div class="card-icon">⚡</div>
-            <div class="card-title">Instant Financial Modeling</div>
-            <div class="card-text">Powered by NREL PySAM. We don't just calculate generation; we automatically compute CAPEX, NPV, LCOE, and Payback periods tailored for the Turkish market.</div>
+            <div class="card-title">Anında Finansal Modelleme</div>
+            <div class="card-text">NREL PySAM ile güçlendirilmiştir. Sadece üretimi değil; Türkiye pazarına uyarlanmış CAPEX, NPV, LCOE ve geri ödeme sürelerini de otomatik hesaplar.</div>
         </div>
         <div class="glass-card">
             <div class="card-icon">🔋</div>
-            <div class="card-title">Battery Scenario Optimization</div>
-            <div class="card-text">Confused about the recent hybrid rooftop regulations? Our engine automatically compares PV-Only against PV+Storage to find your most profitable path.</div>
+            <div class="card-title">Batarya Senaryosu Optimizasyonu</div>
+            <div class="card-text">Yeni hibrit çatı yönetmeliğinde kafan mı karıştı? Motor, en kârlı yolu bulmak için PV-Only ile PV+Storage senaryolarını otomatik karşılaştırır.</div>
         </div>
         <div class="glass-card">
             <div class="card-icon">⚖️</div>
-            <div class="card-title">Automated EPDK Compliance</div>
-            <div class="card-text">Config-driven regulation checks ensure your project complies with the latest laws (e.g., Article 5.1.h, 25kW limits, zoning requirements) before you spend a dime.</div>
+            <div class="card-title">Otomatik EPDK Uyumluluğu</div>
+            <div class="card-text">Config-driven regülasyon kontrolleri, projenin güncel mevzuata (ör. Madde 5.1.h, 25 kW limiti, imar şartları) uygunluğunu daha tek kuruş harcamadan doğrular.</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### 🏆 Market Gap: Us vs Legacy Tools")
+    st.markdown("### 🏆 Pazar Boşluğu: Biz vs Eski Araçlar")
     st.markdown("""
     <div class="table-responsive">
         <table class="custom-table">
             <tr>
-                <th>Feature / Capability</th>
+                <th>Özellik / Yetenek</th>
                 <th>GES Feasibility Engine</th>
-                <th>Legacy Tools (e.g., PVCase, PVSyst)</th>
+                <th>Eski Araçlar (ör. PVCase, PVSyst)</th>
             </tr>
             <tr>
-                <td>Primary Focus</td>
-                <td>End-to-End Financial & Regulatory Feasibility</td>
-                <td>3D CAD Geometry & Layout Drafting</td>
+                <td>Ana Odak</td>
+                <td>Uçtan Uca Finansal & Regülasyon Fizibilitesi</td>
+                <td>3B CAD Geometrisi & Yerleşim Çizimi</td>
             </tr>
             <tr>
-                <td>Advanced Financial Modeling (NPV, LCOE)</td>
-                <td><span class="badge-pro">Yes (Integrated)</span></td>
-                <td><span class="badge-con">No (Requires Excel)</span></td>
+                <td>Gelişmiş Finansal Modelleme (NPV, LCOE)</td>
+                <td><span class="badge-pro">Evet (Entegre)</span></td>
+                <td><span class="badge-con">Hayır (Excel gerekir)</span></td>
             </tr>
             <tr>
-                <td>Battery Dispatch & Arbitrage Optimization</td>
-                <td><span class="badge-pro">Yes</span></td>
-                <td><span class="badge-con">No</span></td>
+                <td>Batarya Dispatch & Arbitraj Optimizasyonu</td>
+                <td><span class="badge-pro">Evet</span></td>
+                <td><span class="badge-con">Hayır</span></td>
             </tr>
             <tr>
-                <td>Automated Local Regulation Compliance</td>
-                <td><span class="badge-pro">Yes (EPDK Rules)</span></td>
-                <td><span class="badge-con">Manual checks required</span></td>
+                <td>Otomatik Yerel Regülasyon Uyumu</td>
+                <td><span class="badge-pro">Evet (EPDK Kuralları)</span></td>
+                <td><span class="badge-con">Manuel kontrol gerekir</span></td>
             </tr>
             <tr>
-                <td>Report Generation Time</td>
-                <td><span class="badge-pro">< 2 Minutes</span></td>
-                <td><span class="badge-con">Days to Weeks</span></td>
+                <td>Rapor Üretim Süresi</td>
+                <td><span class="badge-pro">< 2 Dakika</span></td>
+                <td><span class="badge-con">Günler - Haftalar</span></td>
             </tr>
             <tr>
-                <td>Cost</td>
-                <td><span class="badge-pro">Accessible SaaS</span></td>
-                <td><span class="badge-con">~$2990/yr + AutoCAD License</span></td>
+                <td>Maliyet</td>
+                <td><span class="badge-pro">Erişilebilir SaaS</span></td>
+                <td><span class="badge-con">~$2990/yıl + AutoCAD Lisansı</span></td>
             </tr>
         </table>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### 🎯 Trust & Accuracy")
+    st.markdown("### 🎯 Güven & Doğruluk")
     st.info("""
-    **Academic & Industry Standard Validation:** Our core calculation engines run on **pvlib** (supported by PVGIS data) and the **National Renewable Energy Laboratory's (NREL) PySAM**. 
-    
-    **Maximize Your Accuracy:** While the engine works with default profiles, you can achieve **up to 99% accuracy** in self-consumption and battery sizing calculations by uploading your facility's granular **8760-hour CSV consumption profile** in the calculator.
+    **Akademik & Endüstri Standardı Doğrulama:** Çekirdek hesaplama motorları **pvlib** (PVGIS verisiyle desteklenir) ve **National Renewable Energy Laboratory (NREL) PySAM** üzerinde çalışır.
+
+    **Doğruluğu Maksimuma Çıkar:** Motor varsayılan profillerle de çalışır, ancak tesisinin ayrıntılı **8760 saatlik CSV tüketim profilini** kalkülatöre yükleyerek öz-tüketim ve batarya boyutlandırma hesaplarında **%99'a varan doğruluk** yakalayabilirsin.
     """)
 
-    st.markdown("### 🛠️ How It Works")
+    st.markdown("### 🛠️ Nasıl Çalışır?")
     st.markdown("""
-    1. **Input Data:** Go to the Feasibility Calculator tab. Enter location, area, and upload your consumption CSV.
-    2. **AI Processing:** The engine queries PVGIS, simulates physics, dispatches battery storage logic, applies Turkish tariffs, and checks EPDK constraints.
-    3. **Actionable Insights:** Instantly view KPI dashboards, compare scenarios, and download a presentation-ready PDF report.
+    1. **Veri Girişi:** Fizibilite Kalkülatörü sekmesine git. Konum, alan gir ve tüketim CSV'ni yükle.
+    2. **İşleme:** Motor PVGIS'i sorgular, PV fiziğini simüle eder, batarya dispatch mantığını çalıştırır, tarifeleri uygular ve EPDK kısıtlarını kontrol eder.
+    3. **Aksiyona Dönük İçgörü:** Anında KPI panolarını gör, senaryoları karşılaştır ve sunuma hazır PDF raporu indir.
     """)
+
+    # ------------------------------------------------------------------
+    # Metodoloji / mühendis notları (Türkçe) — domain uzmanı için şeffaflık
+    # ------------------------------------------------------------------
+    st.markdown("---")
+    st.markdown("### ⚙️ Motor & Metodoloji — bu araç neye göre hesaplıyor?")
+    st.caption("Aşağıdaki notlar, elektrik/GES mühendisleri için hesabın hangi motorlara ve varsayımlara dayandığını şeffafça açıklar.")
+    st.markdown("""
+    <div class="method-note">
+        <div class="mn-title">☀️ Üretim motoru — pvlib + PVGIS</div>
+        Konumun enlem/boylamına göre <code>PVGIS</code> tipik meteorolojik yıl (TMY) verisi çekilir ve
+        <code>pvlib</code> ile 8760 saatlik AC üretim simüle edilir. Model: PVWatts DC + inverter (DC/AC ≈ 1.2).
+        Panel eğimi çatıda 20°, arazide (enlem − 10°); yön güneye bakar (azimut 180°). Arazi için tek-eksen
+        güneş takibi opsiyoneldir. Sistem gücü otomatik tahmin edilir: çatı ≈ 200 W/m², arazi ≈ 100 W/m²
+        (aralık bırakma nedeniyle) — ya da kalkülatörde elle girebilirsin.
+    </div>
+    <div class="method-note">
+        <div class="mn-title">💰 Finans motoru — NREL PySAM (SAM)</div>
+        NPV, LCOE ve geri ödeme, SAM masaüstü uygulamasıyla <b>birebir aynı motor</b> olan
+        <code>PySAM.Utilityrate5</code> (enerji/fatura değeri, mahsuplaşma) + <code>PySAM.Cashloan</code>
+        (CAPEX, borç, iskonto, nakit akışı) ile hesaplanır. Borç (%70 / 10 yıl / %5), 25 yıl proje ömrü,
+        %0.5/yıl panel degradasyonu ve enflasyon eskalasyonu modele dahildir. Sonuç, SAM'in kendi
+        yıl-yıl nakit-akışı çıktısıyla denetlenerek doğrulanmıştır.
+    </div>
+    <div class="method-note">
+        <div class="mn-title">🔋 Batarya — sayaç-arkası (behind-the-meter) dispatch</div>
+        Saatlik dispatch mantığı: PV önce yükü besler → fazlası bataryayı şarj eder → gece deşarj ederek
+        şebeke alımını azaltır → kalan fazla şebekeye satılır. Öz-tüketim oranı, şebekeye ihracat oranı ve
+        yıllık çevrim sayısı buradan çıkar. Yük profili tesisin <b>vardiya düzenine</b> göre şekillenir; bu yüzden
+        depolamanın değeri tek vardiya ile üç vardiyada anlamlı biçimde farklıdır. Batarya boyutu/maliyeti
+        config'ten gelir (12. yıl değişim maliyeti dahil).
+    </div>
+    <div class="method-note">
+        <div class="mn-title">⚖️ Regülasyon — config-driven EPDK kuralları</div>
+        Kurallar koda gömülü değildir, <code>YAML</code> config dosyalarında tutulur: çatı 25 kW lisanssız limiti,
+        trafo kapasite oranı, hibrit depolama izni, arazi (Madde 5.1.h) uygunluk kriterleri (sanayi/tarımsal
+        kullanım, imar, ÇED). Mevzuat değişince yalnızca config güncellenir, kod değişmez.
+    </div>
+    <div class="method-note warn">
+        <div class="mn-title">⚠️ Önemli varsayımlar & sınırlar (mutlaka oku)</div>
+        Para birimi şu an <b>USD</b> (TL değil); tarife placeholder değerdir ($0.12 alış / $0.08 satış, düz).
+        Saatlik tüketim CSV'si yüklenmezse, 12 aylık toplam vardiya profiline göre 8760 saate dağıtılır (sentetik).
+        Mahsuplaşma varsayılan olarak <b>saatlik (net billing)</b> alınır. Çıktılar bir <b>ön-fizibilite tahminidir</b>;
+        nihai yatırım kararı için güncel EPDK metni ve gerçek tarife/kur ile doğrulanmalıdır.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("#### 📐 Varsayılan teknik & finansal parametreler")
+    st.markdown("""
+    <div class="spec-grid">
+        <div class="spec-item"><div class="sp-label">Panel eğimi</div><div class="sp-value">20° / enlem−10°</div><div class="sp-note">çatı / arazi</div></div>
+        <div class="spec-item"><div class="sp-label">Azimut · DC/AC</div><div class="sp-value">180° · 1.20</div><div class="sp-note">güneye bakış</div></div>
+        <div class="spec-item"><div class="sp-label">Sistem gücü</div><div class="sp-value">~200 / 100 W/m²</div><div class="sp-note">çatı / arazi</div></div>
+        <div class="spec-item"><div class="sp-label">Panel degradasyonu</div><div class="sp-value">%0.5 / yıl</div></div>
+        <div class="spec-item"><div class="sp-label">İskonto (nominal)</div><div class="sp-value">%8</div></div>
+        <div class="spec-item"><div class="sp-label">Enflasyon</div><div class="sp-value">%2.5</div></div>
+        <div class="spec-item"><div class="sp-label">Borç yapısı</div><div class="sp-value">%70 · 10y · %5</div><div class="sp-note">oran · vade · faiz</div></div>
+        <div class="spec-item"><div class="sp-label">Proje ömrü</div><div class="sp-value">25 yıl</div></div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # --- TAB 2: CALCULATOR WIZARD ---
 with tab_calc:
-    st.markdown("<h2 style='margin-bottom: 1.5rem;'>Project Setup & Parameters</h2>", unsafe_allow_html=True)
-    
+    st.markdown("<h2 style='margin-bottom: 1.5rem;'>Proje Kurulumu & Parametreler</h2>", unsafe_allow_html=True)
+
+    with st.expander("📖 Bu parametreler neyi etkiliyor? (mühendis notları)"):
+        st.markdown("""
+| Parametre | Neyi etkiler? |
+|---|---|
+| **Konum (enlem/boylam)** | PVGIS TMY ışınım verisi bu noktadan çekilir → yıllık üretim ve kapasite faktörü. |
+| **Alan (m²)** | Sistem gücünü otomatik belirler: çatı ≈ 200 W/m², arazi ≈ 100 W/m². Elle de girebilirsin. |
+| **Kurulum tipi** | Regülasyon dalını seçer (çatı 25 kW limiti vs arazi 5.1.h) ve panel eğimini (20° / enlem−10°). |
+| **Trafo kapasitesi (kVA)** | EPDK trafo-oranı kontrolünde kullanılır: sistem gücü ≤ trafo × oran olmalı. |
+| **Vardiya düzeni** | 12 aylık tüketimi 8760 saatlik yük eğrisine şekillendirir. Bataryanın değeri buna göre değişir (gece yükü → depolama daha değerli). |
+| **Bağlantı tipi** | *Self-consumption limited* seçilirse minimum öz-tüketim oranı regülasyon kontrolü devreye girer. |
+| **Tüketim CSV** | Yüklenirse gerçek 8760 saatlik profil kullanılır (en yüksek doğruluk); yüklenmezse vardiyaya göre sentetik profil üretilir. |
+""")
+
     with st.container():
         col1, col2 = st.columns(2, gap="large")
-        
+
         with col1:
-            st.markdown("#### 📍 Location & Site Characteristics")
-            lat = st.number_input("Latitude", value=39.93, format="%.4f")
-            lon = st.number_input("Longitude", value=32.85, format="%.4f")
-            area = st.number_input("Available Area (m²)", min_value=1.0, value=1000.0, step=100.0)
-            mount_type_str = st.selectbox("Mount Type", ["Rooftop", "Ground"])
-            
+            st.markdown("#### 📍 Konum & Saha Özellikleri")
+            lat = st.number_input("Enlem (Latitude)", value=39.93, format="%.4f")
+            lon = st.number_input("Boylam (Longitude)", value=32.85, format="%.4f")
+            st.caption("📡 Üretim, bu konumun PVGIS tipik meteorolojik yıl (TMY) verisiyle simüle edilir.")
+            area = st.number_input("Kullanılabilir Alan (m²)", min_value=1.0, value=1000.0, step=100.0)
+            st.caption("📐 Sistem gücü otomatik: çatı ≈ 200 W/m², arazi ≈ 100 W/m². Aşağıdan elle de girebilirsin.")
+            mount_type_str = st.selectbox("Kurulum Tipi", ["Çatı", "Arazi"])
+            st.caption("⚖️ Regülasyon dalını belirler — çatı: 25 kW lisanssız limiti · arazi: Madde 5.1.h uygunluk kriterleri.")
+
         with col2:
-            st.markdown("#### ⚡ Grid & Operational Profile")
-            transformer_capacity = st.number_input("Transformer Capacity (kVA)", min_value=1.0, value=400.0, step=50.0)
-            shift_pattern_str = st.selectbox("Shift Pattern", ["Single", "Double", "Triple", "Weekend Closed"])
-            connection_type_str = st.selectbox("Connection Type", ["On Grid", "Self Consumption Limited"])
+            st.markdown("#### ⚡ Şebeke & Operasyonel Profil")
+            transformer_capacity = st.number_input("Trafo Kapasitesi (kVA)", min_value=1.0, value=400.0, step=50.0)
+            st.caption("🔌 EPDK kontrolü: sistem gücü (kW) ≤ trafo kapasitesi (kVA) × config'teki oran olmalı.")
+            shift_pattern_str = st.selectbox("Vardiya Düzeni", ["Tek Vardiya", "Çift Vardiya", "Üç Vardiya", "Hafta Sonu Kapalı"])
+            st.caption("🕒 Tüketimi 8760 saatlik yük eğrisine şekillendirir. Gece yükü arttıkça (çift/üç vardiya) batarya daha değerli olur.")
+            connection_type_str = st.selectbox("Bağlantı Tipi", ["Şebekeye Bağlı", "Öz-Tüketim Kısıtlı"])
+            st.caption("🔗 *Öz-Tüketim Kısıtlı* → minimum öz-tüketim oranı regülasyon kontrolü devreye girer.")
 
     st.markdown("<hr style='border-color: rgba(255,255,255,0.1);'>", unsafe_allow_html=True)
     
@@ -479,36 +616,39 @@ with tab_calc:
         col3, col4 = st.columns(2, gap="large")
         
         with col3:
-            st.markdown("#### 🏗️ Specific Details & Constraints")
-            use_custom_size = st.checkbox("Specify Custom System Size (kWp)?")
+            st.markdown("#### 🏗️ Özel Detaylar & Kısıtlar")
+            use_custom_size = st.checkbox("Sistem Gücünü Elle Belirle (kWp)?")
+            st.caption("🏗️ İşaretlemezsen sistem gücü alandan tahmin edilir. İşaretlersen alan varsayımını ezip DC gücü doğrudan belirlersin.")
             custom_system_size = None
             if use_custom_size:
-                custom_system_size = st.number_input("System Size (kWp)", min_value=1.0, value=100.0, step=10.0)
-                
+                custom_system_size = st.number_input("Sistem Gücü (kWp)", min_value=1.0, value=100.0, step=10.0)
+
             ground_flags = None
-            if mount_type_str == "Ground":
-                st.markdown("**Ground Mount Eligibility Requirements**")
-                ind_agr = st.checkbox("Industrial or Agricultural Use (Art 5.1.h)", value=True)
-                zoning = st.checkbox("Zoning Status Approved", value=True)
-                eia = st.checkbox("EIA (ÇED) Approved", value=True)
+            if mount_type_str == "Arazi":
+                st.markdown("**Arazi Kurulumu Uygunluk Şartları**")
+                ind_agr = st.checkbox("Sanayi veya Tarımsal Kullanım (Madde 5.1.h)", value=True)
+                zoning = st.checkbox("İmar Durumu Onaylı", value=True)
+                eia = st.checkbox("ÇED (EIA) Onaylı", value=True)
                 ground_flags = GroundMountEligibility(
                     industrial_or_agricultural_use=ind_agr,
                     zoning_status_approved=zoning,
                     eia_approved=eia
                 )
-                
+
         with col4:
-            st.markdown("#### 📈 Consumption Profile")
-            st.info("💡 **Pro Tip:** Upload an 8760-hour CSV profile for highest accuracy in battery optimization.")
-            uploaded_csv = st.file_uploader("Upload Consumption CSV (kW/h per hour)", type=["csv"])
+            st.markdown("#### 📈 Tüketim Profili")
+            st.info("💡 **Pro İpucu:** En yüksek batarya optimizasyon doğruluğu için 8760 saatlik CSV profili yükle.")
+            uploaded_csv = st.file_uploader("Tüketim CSV'si Yükle (saatlik kWh)", type=["csv"])
+            st.caption("📄 **CSV formatı:** `month, consumption_kwh` sütunlarıyla 12 satır (aylık toplam), "
+                       "ya da 8760 satırlık saatlik profil. Saatlik veri öz-tüketim ve batarya boyutlandırmada en yüksek doğruluğu verir.")
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    if st.button("🚀 Run Feasibility Analysis", use_container_width=True):
+    if st.button("🚀 Fizibilite Analizini Çalıştır", use_container_width=True):
         if uploaded_csv is None:
-            st.error("⚠️ Please upload a consumption CSV file to proceed.")
+            st.error("⚠️ Devam etmek için lütfen bir tüketim CSV dosyası yükle.")
         else:
-            with st.spinner("⚡ Running AI Pipeline... Generating Models, Optimizing Dispatch, and Cross-checking Regulations..."):
+            with st.spinner("⚡ Pipeline çalışıyor... Üretim simüle ediliyor, dispatch optimize ediliyor ve regülasyon çapraz kontrol ediliyor..."):
                 try:
                     # 1. Parse Input
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
@@ -520,9 +660,9 @@ with tab_calc:
                     finally:
                         os.unlink(tmp_csv_path)
                     
-                    mount_map = {"Rooftop": MountType.ROOFTOP, "Ground": MountType.GROUND}
-                    shift_map = {"Single": ShiftPattern.SINGLE, "Double": ShiftPattern.DOUBLE, "Triple": ShiftPattern.TRIPLE, "Weekend Closed": ShiftPattern.WEEKEND_CLOSED}
-                    conn_map = {"On Grid": ConnectionType.ON_GRID, "Self Consumption Limited": ConnectionType.SELF_CONSUMPTION_LIMITED}
+                    mount_map = {"Çatı": MountType.ROOFTOP, "Arazi": MountType.GROUND}
+                    shift_map = {"Tek Vardiya": ShiftPattern.SINGLE, "Çift Vardiya": ShiftPattern.DOUBLE, "Üç Vardiya": ShiftPattern.TRIPLE, "Hafta Sonu Kapalı": ShiftPattern.WEEKEND_CLOSED}
+                    conn_map = {"Şebekeye Bağlı": ConnectionType.ON_GRID, "Öz-Tüketim Kısıtlı": ConnectionType.SELF_CONSUMPTION_LIMITED}
 
                     site = SiteParameters(
                         location=Location(lat=lat, lon=lon),
@@ -568,55 +708,55 @@ with tab_calc:
                     st.session_state.production = production
                     st.session_state.report_path = report_path
                     
-                    st.success("✅ Analysis complete! Please navigate to the **📊 Results Dashboard** tab above to view your insights.")
-                    
+                    st.success("✅ Analiz tamamlandı! İçgörülerini görmek için yukarıdaki **📊 Sonuç Panosu** sekmesine geç.")
+
                 except Exception as e:
-                    st.error(f"❌ An error occurred during analysis: {str(e)}")
+                    st.error(f"❌ Analiz sırasında bir hata oluştu: {str(e)}")
 
 # --- TAB 3: RESULTS DASHBOARD ---
 with tab_dash:
     if not st.session_state.get('analysis_run', False):
-        st.info("👈 Please run the feasibility analysis in the **Feasibility Calculator** tab first to see your dashboard.")
+        st.info("👈 Panonu görmek için önce **Fizibilite Kalkülatörü** sekmesinde fizibilite analizini çalıştır.")
     else:
         prod = st.session_state.production
         scenario = st.session_state.scenario_result
-        
-        st.markdown("<h2 style='margin-bottom: 1.5rem;'>Technical & Production KPIs</h2>", unsafe_allow_html=True)
-        
+
+        st.markdown("<h2 style='margin-bottom: 1.5rem;'>Teknik & Üretim KPI'ları</h2>", unsafe_allow_html=True)
+
         st.markdown(f"""
         <div class="kpi-container">
             <div class="kpi-card">
-                <div class="kpi-title">System Size</div>
+                <div class="kpi-title">Sistem Gücü</div>
                 <div class="kpi-value">{prod.system_size_kwp:,.1f} kWp</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-title">Annual Generation</div>
+                <div class="kpi-title">Yıllık Üretim</div>
                 <div class="kpi-value">{prod.annual_energy_kwh:,.0f} kWh</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-title">Capacity Factor</div>
+                <div class="kpi-title">Kapasite Faktörü</div>
                 <div class="kpi-value">{prod.capacity_factor*100:.1f}%</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown("<h2 style='margin-top: 2rem; margin-bottom: 1rem;'>⚖️ Financial Scenario Comparison</h2>", unsafe_allow_html=True)
-        
+
+        st.markdown("<h2 style='margin-top: 2rem; margin-bottom: 1rem;'>⚖️ Finansal Senaryo Karşılaştırması</h2>", unsafe_allow_html=True)
+
         st.markdown(f"""
         <div class="table-responsive">
             <table class="custom-table">
                 <tr>
-                    <th>Financial Metric</th>
+                    <th>Finansal Metrik</th>
                     <th>PV Only</th>
                     <th>PV + Storage</th>
                 </tr>
                 <tr>
-                    <td><strong>CAPEX (Initial Investment)</strong></td>
+                    <td><strong>CAPEX (İlk Yatırım)</strong></td>
                     <td>${scenario.pv_only.capex:,.0f}</td>
                     <td>${scenario.pv_storage.capex:,.0f}</td>
                 </tr>
                 <tr>
-                    <td><strong>NPV (Net Present Value)</strong></td>
+                    <td><strong>NPV (Net Bugünkü Değer)</strong></td>
                     <td>${scenario.pv_only.npv:,.0f}</td>
                     <td>${scenario.pv_storage.npv:,.0f}</td>
                 </tr>
@@ -626,43 +766,79 @@ with tab_dash:
                     <td>${scenario.pv_storage.lcoe:.4f}</td>
                 </tr>
                 <tr>
-                    <td><strong>Simple Payback Period</strong></td>
-                    <td>{scenario.pv_only.simple_payback:.1f} Years</td>
-                    <td>{scenario.pv_storage.simple_payback:.1f} Years</td>
+                    <td><strong>Basit Geri Ödeme Süresi</strong></td>
+                    <td>{scenario.pv_only.simple_payback:.1f} Yıl</td>
+                    <td>{scenario.pv_storage.simple_payback:.1f} Yıl</td>
                 </tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("<h2 style='margin-top: 2rem; margin-bottom: 1rem;'>📜 Regulatory Compliance (EPDK)</h2>", unsafe_allow_html=True)
-        
+        st.markdown("""
+        <div class="method-note">
+            <div class="mn-title">📖 Metrikler ne anlama geliyor?</div>
+            <b>CAPEX:</b> ilk yatırım (PV + varsa batarya). &nbsp;•&nbsp;
+            <b>NPV:</b> 25 yıllık net bugünkü değer — pozitif ve yüksek olması iyidir. &nbsp;•&nbsp;
+            <b>LCOE:</b> üretilen enerjinin seviyelendirilmiş birim maliyeti ($/kWh); şebeke alış fiyatının altında olması kârlılığa işaret eder. &nbsp;•&nbsp;
+            <b>Geri ödeme:</b> yatırımın kendini amorti etme süresi. NPV ve geri ödeme <code>PySAM.Cashloan</code> ile hesaplanır.
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Gerçek config değerlerinden varsayım paneli (şeffaflık)
+        with st.expander("📋 Bu finansal sonuçlar hangi varsayımlara dayanıyor?"):
+            try:
+                _t = yaml.safe_load(open(TARIFF_FILE, encoding="utf-8"))
+                _b = yaml.safe_load(open(BATTERY_FILE, encoding="utf-8"))
+                st.markdown(f"""
+                <div class="spec-grid">
+                    <div class="spec-item"><div class="sp-label">Para birimi</div><div class="sp-value">USD ⚠️</div><div class="sp-note">TL değil — placeholder</div></div>
+                    <div class="spec-item"><div class="sp-label">Alış / Satış</div><div class="sp-value">${_t['buy_price_kwh']:.2f} / ${_t['sell_price_kwh']:.2f}</div><div class="sp-note">$/kWh · düz tarife</div></div>
+                    <div class="spec-item"><div class="sp-label">CAPEX (PV)</div><div class="sp-value">${_t['capex_per_kw']:.0f}/kW</div></div>
+                    <div class="spec-item"><div class="sp-label">O&M</div><div class="sp-value">${_t['opex_per_kw_year']:.0f}/kW-yıl</div></div>
+                    <div class="spec-item"><div class="sp-label">İskonto / Enflasyon</div><div class="sp-value">%{_t['discount_rate']:.1f} / %{_t['inflation_rate']:.1f}</div><div class="sp-note">nominal</div></div>
+                    <div class="spec-item"><div class="sp-label">Borç</div><div class="sp-value">%{_t['debt_fraction']:.0f} · {_t['loan_term']}y · %{_t['loan_rate']:.1f}</div></div>
+                    <div class="spec-item"><div class="sp-label">Panel degradasyonu</div><div class="sp-value">%{_t.get('pv_degradation_rate', 0.5):.1f}/yıl</div></div>
+                    <div class="spec-item"><div class="sp-label">Proje ömrü</div><div class="sp-value">{_t['lifetime']} yıl</div></div>
+                    <div class="spec-item"><div class="sp-label">Batarya</div><div class="sp-value">{_b['battery_capacity_kwh']:.0f} kWh / {_b['battery_power_kw']:.0f} kW</div><div class="sp-note">${_b['battery_capex_per_kwh']:.0f}/kWh</div></div>
+                    <div class="spec-item"><div class="sp-label">Batarya değişimi</div><div class="sp-value">{_b['battery_replacement_year']}. yıl</div><div class="sp-note">${_b['battery_replacement_cost_per_kwh']:.0f}/kWh</div></div>
+                    <div class="spec-item"><div class="sp-label">Round-trip verim</div><div class="sp-value">%{_b['round_trip_efficiency']*100:.0f}</div></div>
+                    <div class="spec-item"><div class="sp-label">Mahsuplaşma</div><div class="sp-value">Saatlik</div><div class="sp-note">net billing (varsayılan)</div></div>
+                </div>
+                """, unsafe_allow_html=True)
+                st.caption("Bu değerler `config/tariffs/*.yaml` dosyalarından okunur; mevzuat/piyasa değişince kod değil config güncellenir.")
+            except Exception:
+                st.caption("Varsayım değerleri okunamadı.")
+
+        st.markdown("<h2 style='margin-top: 2rem; margin-bottom: 1rem;'>📜 Regülasyon Uyumu (EPDK)</h2>", unsafe_allow_html=True)
+
         col_c1, col_c2 = st.columns(2, gap="large")
-        
+
         with col_c1:
-            st.markdown("#### PV Only Scenario")
+            st.markdown("#### PV Only Senaryosu")
             if scenario.pv_only_compliance.is_compliant:
-                st.markdown('<div class="alert-success"><strong>✅ Fully Compliant</strong><br>Meets all EPDK regulation constraints.</div>', unsafe_allow_html=True)
+                st.markdown('<div class="alert-success"><strong>✅ Tam Uyumlu</strong><br>Tüm EPDK regülasyon kısıtlarını karşılıyor.</div>', unsafe_allow_html=True)
             else:
                 errors = "".join([f"<li>{v}</li>" for v in scenario.pv_only_compliance.violations])
-                st.markdown(f'<div class="alert-error"><strong>❌ Non-Compliant</strong><ul>{errors}</ul></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="alert-error"><strong>❌ Uyumsuz</strong><ul>{errors}</ul></div>', unsafe_allow_html=True)
 
         with col_c2:
-            st.markdown("#### PV + Storage Scenario")
+            st.markdown("#### PV + Storage Senaryosu")
             if scenario.pv_storage_compliance.is_compliant:
-                st.markdown('<div class="alert-success"><strong>✅ Fully Compliant</strong><br>Meets all EPDK regulation constraints.</div>', unsafe_allow_html=True)
+                st.markdown('<div class="alert-success"><strong>✅ Tam Uyumlu</strong><br>Tüm EPDK regülasyon kısıtlarını karşılıyor.</div>', unsafe_allow_html=True)
             else:
                 errors = "".join([f"<li>{v}</li>" for v in scenario.pv_storage_compliance.violations])
-                st.markdown(f'<div class="alert-error"><strong>❌ Non-Compliant</strong><ul>{errors}</ul></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="alert-error"><strong>❌ Uyumsuz</strong><ul>{errors}</ul></div>', unsafe_allow_html=True)
 
-        st.markdown("<h2 style='margin-top: 2rem; margin-bottom: 1rem;'>💡 AI Recommendation</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='margin-top: 2rem; margin-bottom: 1rem;'>💡 Karar Önerisi</h2>", unsafe_allow_html=True)
         st.info(f"**{scenario.recommendation}**\n\n{scenario.recommendation_rationale}")
+        st.caption("ℹ️ Bu öneri yapay zeka değildir: NPV karşılaştırması, EPDK uygunluğu ve öz-tüketim oranına dayalı **kural-tabanlı** bir karardır. Regülasyona aykırı bir senaryo, finansal olarak üstün olsa bile önerilmez.")
         
         st.markdown("---")
-        st.markdown("### 📥 Export Final Presentation")
-        
+        st.markdown("### 📥 Nihai Sunumu Dışa Aktar")
+
         with open(st.session_state.report_path, "rb") as f:
             st.download_button(
-                label="📄 Download Comprehensive PDF Report",
+                label="📄 Kapsamlı PDF Raporunu İndir",
                 data=f,
                 file_name="GES_Feasibility_Report.pdf",
                 mime="application/pdf",
