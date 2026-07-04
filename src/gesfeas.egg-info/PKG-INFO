@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: gesfeas
+Version: 0.1.0
+Summary: GES Fizibilite Engine
+Requires-Python: >=3.11
+Requires-Dist: pvlib
+Requires-Dist: nrel-pysam
+Requires-Dist: pandas
+Requires-Dist: pydantic
+Requires-Dist: pyyaml
+Requires-Dist: requests
+Requires-Dist: pytest

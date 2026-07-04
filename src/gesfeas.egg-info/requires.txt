@@ -1,0 +1,7 @@
+pvlib
+nrel-pysam
+pandas
+pydantic
+pyyaml
+requests
+pytest
