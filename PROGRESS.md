@@ -1,7 +1,7 @@
 # PROGRESS.md
 
 - [x] **G0:** Skeleton & CI setup
-- [ ] **G1:** Input parsing module
+- [x] **G1:** Input parsing module
 - [ ] **G2:** Production engine (pvlib integration)
 - [ ] **G3:** Finance engine (PySAM integration)
 - [ ] **G4:** Battery scenario (PySAM)
