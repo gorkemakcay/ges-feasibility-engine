@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>GES Fizibilite Raporu</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-right {
+                content: "Sayfa " counter(page) " / " counter(pages);
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-size: 10pt;
+                color: #666;
+            }
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            font-size: 11pt;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2, h3, h4 {
+            color: #1a365d;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        h1 {
+            font-size: 24pt;
+            border-bottom: 2px solid #3182ce;
+            padding-bottom: 0.2em;
+        }
+        h2 {
+            font-size: 18pt;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.2em;
+            page-break-after: avoid;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+            page-break-inside: avoid;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f7fafc;
+            color: #2d3748;
+            font-weight: bold;
+        }
+        .cover-page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            page-break-after: always;
+        }
+        .cover-title {
+            font-size: 32pt;
+            color: #2b6cb0;
+            margin-bottom: 1em;
+            font-weight: bold;
+        }
+        .cover-subtitle {
+            font-size: 18pt;
+            color: #4a5568;
+            margin-bottom: 2em;
+        }
+        .cover-details {
+            font-size: 14pt;
+            color: #718096;
+        }
+        .highlight {
+            background-color: #ebf8ff;
+            font-weight: bold;
+        }
+        .warning {
+            color: #c53030;
+            font-weight: bold;
+        }
+        .success {
+            color: #2f855a;
+            font-weight: bold;
+        }
+        .section {
+            margin-bottom: 2em;
+        }
+        .disclaimer {
+            font-size: 9pt;
+            color: #718096;
+            margin-top: 3em;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1em;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Cover Page -->
+    <div class="cover-page">
+        <div class="cover-title">Güneş Enerjisi Santrali (GES)<br>Fizibilite Raporu</div>
+        <div class="cover-subtitle">Proje Değerlendirme ve Analiz</div>
+        <div class="cover-details">
+            <p><strong>Tarih:</strong> 04.07.2026</p>
+            <p><strong>Konum (Enlem, Boylam):</strong> 39.9, 32.8</p>
+            <br><br><br>
+            <p><em>Bu rapor GES Feasibility Engine tarafından otomatik üretilmiştir.</em></p>
+        </div>
+    </div>
+
+    <!-- 2. Executive Summary -->
+    <div class="section">
+        <h2>Yönetici Özeti</h2>
+        <p>
+            Tesisinizin enerji tüketim profili, çatı/arazi potansiyeli ve güncel mevzuatlar çerçevesinde yapılan analiz sonucunda 
+            <strong>pv_only</strong> seçeneği önerilmektedir.
+        </p>
+        <p>
+            <strong>Gerekçe:</strong> Storage is not compliant with current regulations.
+        </p>
+        <table>
+            <tr>
+                <th>Önerilen Sistem Boyutu</th>
+                <td>100.0 kWp</td>
+            </tr>
+            <tr>
+                <th>Yatırım Tutarı (CAPEX)</th>
+                <td>
+                    
+                        $50,000.00
+                    
+                </td>
+            </tr>
+            <tr>
+                <th>Net Bugünkü Değer (NPV)</th>
+                <td>
+                    
+                        $20,000.00
+                    
+                </td>
+            </tr>
+            <tr>
+                <th>Geri Ödeme Süresi</th>
+                <td>
+                    
+                        3.33 yıl
+                    
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 3. Site Information -->
+    <div class="section">
+        <h2>Saha ve Tesis Bilgileri</h2>
+        <table>
+            <tr><th>Enlem / Boylam</th><td>39.9, 32.8</td></tr>
+            <tr><th>Kullanılabilir Alan</th><td>1000.0 m²</td></tr>
+            <tr><th>Kurulum Tipi</th><td>MountType.ROOFTOP</td></tr>
+            <tr><th>Trafo Kapasitesi</th><td>400.0 kVA</td></tr>
+            <tr><th>Vardiya Düzeni</th><td>ShiftPattern.SINGLE</td></tr>
+            <tr><th>Bağlantı Tipi</th><td>ConnectionType.ON_GRID</td></tr>
+        </table>
+    </div>
+
+    <!-- 4. Consumption Profile -->
+    <div class="section">
+        <h2>Tüketim Profili</h2>
+        <p>Tesisin aylık enerji tüketim dağılımı (kWh):</p>
+        <table>
+            <tr>
+                <th>Ay</th>
+                <th>Tüketim (kWh)</th>
+            </tr>
+            
+            <tr>
+                <td>Ay 1</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 2</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 3</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 4</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 5</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 6</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 7</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 8</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 9</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 10</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 11</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr>
+                <td>Ay 12</td>
+                <td>1,000.00</td>
+            </tr>
+            
+            <tr class="highlight">
+                <th>Toplam Yıllık Tüketim</th>
+                <th>12,000.00</th>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 5. Production Estimate -->
+    <div class="section">
+        <h2>Üretim Tahmini</h2>
+        <table>
+            <tr><th>Kurulu Güç (Sistem Boyutu)</th><td>100.0 kWp</td></tr>
+            <tr><th>Yıllık Toplam Üretim</th><td>120,000.00 kWh</td></tr>
+            <tr><th>Kapasite Faktörü</th><td>15.0%</td></tr>
+        </table>
+    </div>
+
+    <!-- 6. Financial Analysis — PV Only -->
+    <div class="section">
+        <h2>Finansal Analiz (Sadece GES Senaryosu)</h2>
+        <table>
+            <tr><th>Yatırım Tutarı (CAPEX)</th><td>$50,000.00</td></tr>
+            <tr><th>Yıllık Tasarruf (İlk Yıl)</th><td>$15,000.00</td></tr>
+            <tr><th>Net Bugünkü Değer (NPV)</th><td>$20,000.00</td></tr>
+            <tr><th>Seviyelendirilmiş Enerji Maliyeti (LCOE)</th><td>$0.0400 / kWh</td></tr>
+            <tr><th>Basit Geri Ödeme Süresi</th><td>3.33 yıl</td></tr>
+            <tr><th>İskontolu Geri Ödeme Süresi</th><td>4.5 yıl</td></tr>
+        </table>
+    </div>
+
+    <!-- 7. Financial Analysis — PV + Storage -->
+    <div class="section">
+        <h2>Finansal Analiz (GES + Depolama Senaryosu)</h2>
+        <table>
+            <tr><th>Yatırım Tutarı (CAPEX)</th><td>$80,000.00</td></tr>
+            <tr><th>Yıllık Tasarruf (İlk Yıl)</th><td>$22,000.00</td></tr>
+            <tr><th>Net Bugünkü Değer (NPV)</th><td>$30,000.00</td></tr>
+            <tr><th>Seviyelendirilmiş Enerji Maliyeti (LCOE)</th><td>$0.0500 / kWh</td></tr>
+            <tr><th>Basit Geri Ödeme Süresi</th><td>3.63 yıl</td></tr>
+            <tr><th>İskontolu Geri Ödeme Süresi</th><td>4.8 yıl</td></tr>
+            <tr><th>Öz Tüketim Oranı</th><td>80.0%</td></tr>
+            <tr><th>Şebekeye Satış Oranı</th><td>20.0%</td></tr>
+            <tr><th>Batarya Döngü Sayısı (İlk Yıl)</th><td>300.0 döngü</td></tr>
+        </table>
+    </div>
+
+    <!-- 8. Scenario Comparison -->
+    <div class="section">
+        <h2>Senaryo Karşılaştırması</h2>
+        <table>
+            <tr>
+                <th>Metrik</th>
+                <th>Sadece GES</th>
+                <th>GES + Depolama</th>
+            </tr>
+            <tr>
+                <td>NPV</td>
+                <td class="">
+                    $20,000.00
+                </td>
+                <td class="success">
+                    $30,000.00
+                </td>
+            </tr>
+            <tr>
+                <td>Geri Ödeme (Yıl)</td>
+                <td>3.33</td>
+                <td>3.63</td>
+            </tr>
+            <tr>
+                <td>CAPEX</td>
+                <td>$50,000.00</td>
+                <td>$80,000.00</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 9. Regulatory Compliance -->
+    <div class="section">
+        <h2>Mevzuat ve Regülasyon Uyumluluğu</h2>
+        
+        <h3>Sadece GES Senaryosu</h3>
+        <p>
+            <strong>Durum:</strong> 
+            
+                <span class="success">Uygun</span>
+            
+        </p>
+        
+        
+        <p><strong>Uyarılar:</strong></p>
+        <ul>
+            
+                <li>Some minor warning</li>
+            
+        </ul>
+        
+
+        <h3>GES + Depolama Senaryosu</h3>
+        <p>
+            <strong>Durum:</strong> 
+            
+                <span class="warning">Uygun Değil</span>
+            
+        </p>
+        
+        <p><strong>İhlaller:</strong></p>
+        <ul>
+            
+                <li class="warning">Battery capacity exceeds limits</li>
+            
+        </ul>
+        
+        
+    </div>
+
+    <!-- 10. Assumptions & Disclaimers -->
+    <div class="section disclaimer">
+        <h2>Varsayımlar ve Yasal Uyarılar</h2>
+        <ul>
+            <li>Bu rapor ön fizibilite niteliğinde olup kesin mühendislik sonuçları taşımaz. Yatırım kararı öncesi bağlayıcı bir teklif olarak kullanılamaz.</li>
+            <li>Elektrik üretim tahminleri, seçilen konuma ait iklim verilerine (PVGIS/PVWatts) dayalı simülasyonlardır; gerçek üretim hava koşullarına göre değişkenlik gösterebilir.</li>
+            <li>Finansal analizler (NPV, Geri Ödeme Süresi), kabul edilen enflasyon oranı, iskonto oranı, elektrik tarifeleri (alınalan ve satılan) ve yatırım maliyetleri (CAPEX/OPEX) üzerinden hesaplanmıştır.</li>
+            <li>Depolama ömrü, döngü sayısı ve panel verim kaybı (degradasyon) teorik değerler üzerinden projeksiyona dahil edilmiştir.</li>
+            <li>Türkiye güncel Lisanssız Üretim Yönetmeliği referans alınarak regülasyon analizi yapılmış olup, mevzuat değişiklikleri fizibilite sonuçlarını değiştirebilir.</li>
+        </ul>
+    </div>
+
+</body>
+</html>
