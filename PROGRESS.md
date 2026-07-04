@@ -8,5 +8,5 @@
 - [x] **G5:** Regulation rule engine (config-driven)
 - [x] **G6:** Scenario comparison & logic
 - [x] **G7:** Report generator
-- [ ] **G8:** UI (Streamlit MVP)
-- [ ] **G9:** Validation & regression suite
+- [x] **G8:** UI (Streamlit MVP)
+- [x] **G9:** Validation & regression suite

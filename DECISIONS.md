@@ -6,3 +6,4 @@
 - **Architecture:** Autonomous goals run linearly on the `develop` branch.
 - **Libraries:** We rely on established open-source engines (`pvlib`, `nrel-pysam`) instead of building custom mathematical models for solar and financial simulations.
 - **Finance Engine Validation:** The golden baseline used for testing the PV-only PySAM financial model must be validated against a manual SAM GUI run before production use. The current golden test catches regressions, but not necessarily correctness relative to SAM GUI output.
+- **Regression Baseline:** The G9 golden files (`g9_full_pipeline.json`, etc.) establish the regression baseline for the entire pipeline. Any intentional output change in the future requires updating these golden files AND documenting the reason for the change in this DECISIONS.md file.

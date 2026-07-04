@@ -1,0 +1,37 @@
+{
+  "pv_only": {
+    "capex": 120000.0,
+    "annual_savings": 26329.867949503714,
+    "npv": 186813.17717817432,
+    "lcoe": 0.04093276200141461,
+    "simple_payback": 4.753610784521614,
+    "discounted_payback": 6.151926815075941
+  },
+  "pv_storage": {
+    "capex": 170000.0,
+    "annual_savings": 26447.3063832495,
+    "npv": 122277.11912462948,
+    "lcoe": 0.055412030351762696,
+    "simple_payback": 6.584514356780023,
+    "discounted_payback": 9.4840174599808,
+    "self_consumption_ratio": 0.05014893347716043,
+    "grid_export_ratio": 0.9498510665228371,
+    "battery_cycles_year1": 22.591611313774823
+  },
+  "pv_only_compliance": {
+    "is_compliant": false,
+    "violations": [
+      "max_capacity_kw: System size 200.0 kW exceeds the allowed maximum of 25.0 kW."
+    ],
+    "warnings": []
+  },
+  "pv_storage_compliance": {
+    "is_compliant": false,
+    "violations": [
+      "max_capacity_kw: System size 200.0 kW exceeds the allowed maximum of 25.0 kW."
+    ],
+    "warnings": []
+  },
+  "recommendation": "None",
+  "recommendation_rationale": "Neither PV-only nor PV+Storage is compliant with current regulations."
+}
