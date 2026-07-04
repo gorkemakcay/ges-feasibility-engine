@@ -8,8 +8,9 @@ import streamlit as st
 
 # Add the project root to sys.path so we can import from src/gesfeas
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+src_dir = os.path.join(project_root, "src")
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
 
 from gesfeas.input.parser import parse_consumption_csv
 from gesfeas.input.models import SiteParameters, Location, MountType, ShiftPattern, ConnectionType
