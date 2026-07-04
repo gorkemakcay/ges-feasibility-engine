@@ -86,8 +86,8 @@ def compare_scenarios(
     # 3. Recommendation Logic
     # ---------------------------------------------------------
     if not pv_only_compliance.is_compliant and not pv_storage_compliance.is_compliant:
-        recommendation = "None"
-        recommendation_rationale = "Neither PV-only nor PV+Storage is compliant with current regulations."
+        recommendation = "Projeye Onay Verilmiyor"
+        recommendation_rationale = "Hem sadece GES hem de GES+Depolama senaryoları mevcut EPDK regülasyonlarını ihlal etmektedir. Lütfen kapasiteyi düşürerek veya bağlantı tipini değiştirerek tekrar deneyin."
         
     elif not pv_storage_compliance.is_compliant:
         recommendation = "PV-only"

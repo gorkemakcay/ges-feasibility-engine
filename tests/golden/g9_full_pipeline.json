@@ -32,6 +32,6 @@
     ],
     "warnings": []
   },
-  "recommendation": "None",
+  "recommendation": "Projeye Onay Verilmiyor",
   "recommendation_rationale": "Neither PV-only nor PV+Storage is compliant with current regulations."
 }

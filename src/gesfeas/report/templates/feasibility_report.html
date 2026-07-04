@@ -177,10 +177,10 @@
         <table>
             <tr><th>Enlem / Boylam</th><td>{{ site.location.lat | round(4) }}, {{ site.location.lon | round(4) }}</td></tr>
             <tr><th>Kullanılabilir Alan</th><td>{{ site.available_area_m2 | round(2) }} m²</td></tr>
-            <tr><th>Kurulum Tipi</th><td>{{ site.mount_type }}</td></tr>
+            <tr><th>Kurulum Tipi</th><td>{{ site.mount_type.name | replace('_', ' ') | title }}</td></tr>
             <tr><th>Trafo Kapasitesi</th><td>{{ site.transformer_capacity_kva }} kVA</td></tr>
-            <tr><th>Vardiya Düzeni</th><td>{{ site.shift_pattern }}</td></tr>
-            <tr><th>Bağlantı Tipi</th><td>{{ site.connection_type }}</td></tr>
+            <tr><th>Vardiya Düzeni</th><td>{{ site.shift_pattern.name | replace('_', ' ') | title }}</td></tr>
+            <tr><th>Bağlantı Tipi</th><td>{{ site.connection_type.name | replace('_', ' ') | title }}</td></tr>
         </table>
     </div>
 
