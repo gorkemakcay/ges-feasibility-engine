@@ -53,141 +53,190 @@ def inject_custom_css():
         
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background: radial-gradient(circle at 50% 0%, #09090b 0%, #0f172a 50%, #000000 100%);
+            min-height: 70vh;
             padding: 5rem 2rem;
-            border-radius: 20px;
+            border-radius: 24px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 2rem;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8), 0 20px 60px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 3rem;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.3;
         }
         
         .hero::before {
             content: '';
             position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+            top: -30%; left: 50%;
+            transform: translateX(-50%);
+            width: 80%; height: 80%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 60%);
             pointer-events: none;
         }
         
         .hero-title {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: 800;
-            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+            letter-spacing: -0.03em;
+            background: linear-gradient(90deg, #ffffff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             line-height: 1.1;
+            z-index: 1;
         }
         
         .hero-subtitle {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             color: #94a3b8;
             font-weight: 300;
             max-width: 800px;
-            margin: 0 auto 2rem auto;
+            margin: 0 auto 2.5rem auto;
             line-height: 1.6;
+            z-index: 1;
         }
         
         /* Glassmorphism Cards */
         .glass-card-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
         }
         
         .glass-card {
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 2rem;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         
         .glass-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(56, 189, 248, 0.4);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            background: rgba(30, 41, 59, 0.8);
+            transform: translateY(-6px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            background: rgba(255, 255, 255, 0.04);
         }
         
         .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
         }
         
         .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.4rem;
+            font-weight: 700;
             color: #f8fafc;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
         }
         
         .card-text {
             color: #94a3b8;
-            font-size: 1rem;
-            line-height: 1.6;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            font-weight: 300;
         }
 
         /* KPI Dashboard Cards */
         .kpi-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
         .kpi-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         .kpi-title {
-            color: #94a3b8;
-            font-size: 0.9rem;
+            color: #64748b;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
         }
         .kpi-value {
-            font-size: 2.2rem;
+            font-size: 2.8rem;
             font-weight: 800;
-            color: #38bdf8;
+            letter-spacing: -0.03em;
+            color: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         /* Table Styles */
         .table-responsive {
             overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            margin: 2rem 0;
         }
         .custom-table {
             width: 100%;
             border-collapse: collapse;
             color: #f8fafc;
-            margin: 1.5rem 0;
-            background: rgba(30, 41, 59, 0.4);
-            border-radius: 12px;
-            overflow: hidden;
         }
         .custom-table th, .custom-table td {
-            padding: 1.2rem;
+            padding: 18px 24px;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
             white-space: nowrap;
         }
         .custom-table th {
             font-weight: 600;
-            color: #818cf8;
-            background: rgba(15, 23, 42, 0.8);
-            font-size: 1.1rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            background: transparent;
+        }
+        .custom-table td {
+            font-variant-numeric: tabular-nums;
+            font-size: 0.95rem;
+        }
+        .custom-table tr {
+            transition: background-color 0.2s ease;
         }
         .custom-table tr:hover {
-            background: rgba(255,255,255,0.02);
+            background-color: rgba(255,255,255,0.02);
         }
         .badge-pro { background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);}
         .badge-con { background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.3);}
