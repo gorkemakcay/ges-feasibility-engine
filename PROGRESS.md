@@ -3,7 +3,7 @@
 - [x] **G0:** Skeleton & CI setup
 - [x] **G1:** Input parsing module
 - [x] **G2:** Production engine (pvlib integration)
-- [ ] **G3:** Finance engine (PySAM integration)
+- [x] **G3:** Finance engine (PySAM integration)
 - [ ] **G4:** Battery scenario (PySAM)
 - [ ] **G5:** Regulation rule engine (config-driven)
 - [ ] **G6:** Scenario comparison & logic
